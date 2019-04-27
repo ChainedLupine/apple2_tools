@@ -6,6 +6,7 @@
 .include "file.inc"
 .include "tileengine.inc"
 .include "grfx.inc"
+.include "textengine.inc"
 
 .segment "CODE_H"
 
@@ -20,8 +21,20 @@
 		Util_LOAD_SYM tiles_img_aux, arg2w
 		Util_LOAD_SYM tiles_img_main, arg3w
 
-		.include "titlescreen.inc"
+		LDA #$FF
+		STA arg1
+		JSR GRFX::DHGR_CLEAR_TO_COLOR_PAGE1
 		
+		JSR ROM::GFX_MODE_DHGR
+		JSR ROM::GFX_DHGR_PAGE1
+
+		
+		;JMP SKIP_INTRO
+		
+		.include "titlescreen.inc"
+
+	SKIP_INTRO:
+	
 		; -- load our tile image ------------------------------
 		
 		Util_LOAD_SYM tiles_filename, arg1w
@@ -30,14 +43,38 @@
 		
 		; -- going to graphics mode ---------------------------
 
-		
+		JSR ROM::GFX_MODE_DHGR_MIXED
+		JSR ROM::GFX_DHGR_PAGE1
 
-		;LDA #$44
-		;STA arg1
-		;JSR GRFX::DHGR_CLEAR_TO_COLOR_PAGE1
+		JSR TE_CLEAR_TEXT
 		
+		lda #05
+		lda #06
+		lda #07
+		
+		LDA #<txt_test
+		STA arg1w
+		LDA #>txt_test
+		STA arg1w+1
+		JSR TE_PRINT_TEXT
+
+		LDA #<txt_test2
+		STA arg1w
+		LDA #>txt_test2
+		STA arg1w+1
+		JSR TE_PRINT_TEXT
+
 		;JMP @NOCPY
-		;JMP EXIT_GETKEY
+		
+		JSR ROM::GETKEY
+
+		LDA #<txt_test2
+		STA arg1w
+		LDA #>txt_test2
+		STA arg1w+1
+		JSR TE_PRINT_TEXT
+		
+		JMP EXIT_GETKEY
 		
 		CLI		
 		LDA ROM::SW_HIRES 		; need HIRES before we can use the MAIN/AUX writes below
@@ -66,21 +103,22 @@
 		STA arg1 ; tileid
 		LDA #0
 		STA arg2 ; dst x in small tiles
-		LDA #0
+		LDA #4
 		STA arg3 ; dst y in small tiles
 	
 	@MAINLOOP:
 		
 	@RLOOP:
 	
-		JSR TILEENGINE_RENDER_LARGE_TILE_PAGE1
+		JSR TILEENGINE_RENDER_LARGE_TILE_ANYLINE
 		
 		;JMP @INC
 		;JMP EXIT_GETKEY
 		
 	@INC:
 		; just blindly increment tiles
-		INC arg1
+		;INC arg1
+		LDA arg1
 		CMP #120
 		BNE :+
 		LDA #0
@@ -89,10 +127,10 @@
 	:	LDA arg2
 		INC
 		INC
-		CMP #20
-		BNE @NORESETX
+		CMP #2
+		BCC @NORESETX
 		; end of width, reset
-		LDA 0
+		LDA #0
 		STA arg2
 
 		; and increment y
@@ -100,9 +138,10 @@
 		INC
 		INC
 		CMP #4
-		BNE :+
-		LDA 0
+		BCC :+
+		LDA #0
 		STA arg1 ; reset tile to 0 too
+		LDA #4
 	:	STA arg3	
 	
 		JMP @MAINLOOP
@@ -131,6 +170,10 @@ QUIT_TO_PRODOS:
 	tiles_filename:		Util_LSTR "INGAME.DHGR"
 	txt_success:		.asciiz "OK!"
 	txt_loading:		.asciiz "Loading..."
+							   ;01234567890123456789012345678901234567890123456789012345678901234567890123456789
+	txt_test:			.asciiz "This is a fairly long line to test our text writing routine on.  We want to see^", "if it can handle multiple lines and so on.  This is real simple kind of test^", "here, ayuh.^"
+	
+	txt_test2:			.asciiz "another test!"
 	
 		
 .segment "DATA_H"

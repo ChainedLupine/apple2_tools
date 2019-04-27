@@ -42,5 +42,4 @@ var2w	:= $88
 var3w	:= $8A
 var4w	:= $8C
 var5w	:= $8E
-		
-		
+	

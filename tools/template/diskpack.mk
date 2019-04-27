@@ -15,29 +15,27 @@ AC_PATH			:= $(TEMPLATE_PATH)../ac/AppleCommander-ac-1.5.0.jar
 # (using python because no shell under Windows)
 BINSTART := $(shell python $(PYTHON_PATH)/extractstartaddr.py $(ASMCFG_PATH)/$(TARGET_ASM_MAP))
 
-DISKIMAGE_MAKE_PRODOS := makeprodos
-
 .PHONY: dsk cleandsk startaddr
-
-dsk: $(DISKIMAGE)
 
 # builds a disk image w/ self-starting prodos
 makeprodos:
-	-cp -f $(DISK_PATH)/prodos-203.po $(DISKIMAGE)
-	$(AC) -n $(DISKIMAGE) $(DISKVOLUME)
+	-cp -f $(DISK_PATH)/prodos-203.po $(DISK_TO_MAKE)
+	$(AC) -n $(DISK_TO_MAKE) $(DISK_VOLUME_TO_MAKE)
 
+# no prodos
+makeblankprodos:
+	-cp -f $(DISK_PATH)/prodos-203-blank.po $(DISK_TO_MAKE)
+	$(AC) -n $(DISK_TO_MAKE) $(DISK_VOLUME_TO_MAKE)
+	
 # inserts bin w/ code
-loadbin: $(BINFILE_FULL)
-	$(AC) -p $(DISKIMAGE) $(BINFILE) bin $(BINSTART) <$(BINFILE_FULL)
+loadbin:
+	$(AC) -p $(DISK_TO_MAKE) $(BIN_TO_LOAD) bin $(BIN_TO_LOAD_START) <$(BIN_TO_LOAD).BIN
 
 # inserts bin w/ code plus the cc65 boostrapper
-loadbin_selfstartprodos: $(BINFILE_FULL)
-	@echo Using start address of $(BINSTART)
-	$(AC) -p $(DISKIMAGE) $(BINFILE) bin $(BINSTART) <$(BINFILE_FULL)
-	$(AC) -p $(DISKIMAGE) $(BINFILE).SYSTEM sys 0x2000 <$(LOADER_PATH)\loader.system
+loadbin_selfstartprodos:
+	@echo Using start address of $(BIN_TO_LOAD_START)
+	$(AC) -p $(DISK_TO_MAKE) $(BIN_TO_LOAD) bin $(BIN_TO_LOAD_START) <$(BIN_TO_LOAD).BIN
+	$(AC) -p $(DISK_TO_MAKE) $(BIN_TO_LOAD).SYSTEM sys 0x2000 <$(LOADER_PATH)\loader.system
 
-cleandsk:
-	-rm -f $(DISKIMAGE)
-	
 startaddr:
 	@echo Using start address of $(BINSTART)

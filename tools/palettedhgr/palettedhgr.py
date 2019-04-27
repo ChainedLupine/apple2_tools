@@ -5,6 +5,9 @@ from bitstring import *
 pngfilenm = sys.argv[1]
 dhgrfilename = os.path.splitext(pngfilenm)[0] + '.dhgr'
 
+#lines_to_process = 120 if sys.argv[2] == "mixed" else 192
+lines_to_process = 192
+
 # in order of wiki article palette (also used by the Aseprite A2 palette)
 # note: Only grey #1 in here with the same RGB values
 # Why?  They show up identically on actual //e hardware
@@ -111,7 +114,7 @@ if sizex == 140 and sizey == 192:
 		bit_patterns = [None] * 7
 
 		#for y in range(0, 1): #192):
-		for y in range(0, 192):
+		for y in range(0, lines_to_process):
 			addr = (int(y/64) | int(0)) * 0x28 + (int(y%8) | int(0)) * 0x400 + (int(y/8) & int(7)) * 0x80
 			#print ("addr={:04x}".format(addr))
 			row_data = img_rows[y]

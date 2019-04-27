@@ -6,19 +6,28 @@ OPENING_LOGO:
 		Util_LOAD_SYM intro_filename, arg1w
 
 		JSR FILE_LOAD_DHGR_TO_RAM
-		
-		JSR ROM::GFX_MODE_DHGR
-		JSR ROM::GFX_DHGR_PAGE1
 
-		JSR CPY_TILEIMAGE_TO_VRAM
+		; copy ludum logo to VRAM
+		JSR CPY_IMAGE_TO_VRAM
+		
+		; and now start loading the titlescreen
+		
+		Util_LOAD_SYM title_filename, arg1w
+		
+		JSR FILE_LOAD_DHGR_TO_RAM		
+
+		; wait for key before swap
+		JSR ROM::GETKEY
+		
+		JSR CPY_IMAGE_TO_VRAM
 		
 		JSR ROM::GETKEY
-
+				
 		JMP SKIP_LOGO
 
 .segment "CODE_END_H"
 
-	CPY_TILEIMAGE_TO_VRAM:
+	CPY_IMAGE_TO_VRAM:
 		CLI		
 		LDA ROM::SW_HIRES 		; need HIRES before we can use the MAIN/AUX writes below
 		STA ROM::SW_80STOREON	; enable PAGE1/2 to control MAIN/AUX banks for $2000-$3FFF
@@ -33,11 +42,12 @@ OPENING_LOGO:
 		STA ROM::SW_80STOREOFF
 		SEI
 		RTS
-	
-		
+
 .segment "RODATA_H"
 
 	intro_filename:		Util_LSTR "LD44INTRO.DHGR"
+	
+	title_filename:		Util_LSTR "TITLESCR.DHGR"
 		
 		
 .segment "CODE_H"

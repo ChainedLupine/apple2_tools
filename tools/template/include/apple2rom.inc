@@ -73,8 +73,24 @@
 		LDA #>size
 		STA ROM::A3H
 				
-		JSR ROM::_MEMCOPY
+		JSR ROM::_MEMFILL
 .endmacro
 
+.macro ROM_MEMFILL_ADDR_ABS dstaddr, val, size
+		LDA dstaddr
+		STA ROM::A1L
+		LDA dstaddr+1
+		STA ROM::A1H		
+		
+		LDA #val
+		STA ROM::A2L
+				
+		LDA #<size
+		STA ROM::A3L
+		LDA #>size
+		STA ROM::A3H
+				
+		JSR ROM::_MEMFILL
+.endmacro
 
 .endscope

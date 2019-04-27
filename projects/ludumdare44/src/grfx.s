@@ -7,7 +7,7 @@
 .segment "CODE_END_H"
 
 GRFX::DHGR_CLEAR_TO_COLOR_PAGE1:
-		CLI		
+		CLI
 		LDA ROM::SW_HIRES 		; need HIRES before we can use the MAIN/AUX writes below
 		STA ROM::SW_80STOREON	; enable PAGE1/2 to control MAIN/AUX banks for $2000-$3FFF
 		STA ROM::SW_PAGE1		; MAIN bank
