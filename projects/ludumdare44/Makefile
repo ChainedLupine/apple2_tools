@@ -9,7 +9,7 @@ TARGET_ASM_MAP = apple2enh-asm-prodos-gfx.cfg
 DISKIMAGE = CL-LD44.po
 DISKVOLUME = CLLD44
 
-ASSETS = assets/ld44intro.dhgr
+ASSETS = assets/ld44intro.dhgr assets/ingame.dhgr
 
 include ../../tools/template/binasm.mk
 include ../../tools/template/diskpack.mk
@@ -20,9 +20,13 @@ $(DISKIMAGE): $(BINFILE_FULL) $(ASSETS)
 	$(MAKE) makeprodos
 	$(MAKE) loadbin_selfstartprodos	
 	$(AC) -p $(DISKIMAGE) ld44intro.dhgr bin 0x0000 <assets/ld44intro.dhgr
+	$(AC) -p $(DISKIMAGE) ingame.dhgr bin 0x0000 <assets/ingame.dhgr
 	$(MAKE) copyto
 	
 assets/ld44intro.dhgr: assets/ld44intro.png
+	$(PALETTEDHGR) $<
+
+assets/ingame.dhgr: assets/ingame.png
 	$(PALETTEDHGR) $<
 	
 src/tables.inc: utils/buildtables.py
@@ -37,7 +41,7 @@ obj/tileengine.o: src/tileengine.s src/tables.inc src/zeropage.inc src/tileengin
 obj/file.o: src/file.s src/zeropage.inc src/file.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
-obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc
+obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
 copyto: $(DISKIMAGE)

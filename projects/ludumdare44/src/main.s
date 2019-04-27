@@ -17,23 +17,24 @@
 
 		ROM_PRINT txt_loading
 
+		Util_LOAD_SYM tiles_img_aux, arg2w
+		Util_LOAD_SYM tiles_img_main, arg3w
+
+		.include "titlescreen.inc"
+		
 		; -- load our tile image ------------------------------
 		
 		Util_LOAD_SYM tiles_filename, arg1w
-		Util_LOAD_SYM tiles_img_aux, arg2w
-		Util_LOAD_SYM tiles_img_main, arg3w
 		
 		JSR FILE_LOAD_DHGR_TO_RAM
 		
 		; -- going to graphics mode ---------------------------
 
 		
-		JSR ROM::GFX_MODE_DHGR
-		JSR ROM::GFX_DHGR_PAGE1
 
-		LDA #$44
-		STA arg1
-		JSR GRFX::DHGR_CLEAR_TO_COLOR_PAGE1
+		;LDA #$44
+		;STA arg1
+		;JSR GRFX::DHGR_CLEAR_TO_COLOR_PAGE1
 		
 		;JMP @NOCPY
 		;JMP EXIT_GETKEY
@@ -127,7 +128,7 @@ QUIT_TO_PRODOS:
 
 .segment "RODATA_H"
 
-	tiles_filename:		Util_LSTR "LD44INTRO.DHGR"
+	tiles_filename:		Util_LSTR "INGAME.DHGR"
 	txt_success:		.asciiz "OK!"
 	txt_loading:		.asciiz "Loading..."
 	
