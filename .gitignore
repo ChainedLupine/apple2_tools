@@ -5,3 +5,5 @@ tools/ac/
 tools/cc65-snapshot-win32/
 tools/palettedhgr/__pycache__/
 projects/tiletest/obj/
+projects/ludumdare44/obj/
+projects/ludumdare44/linkmap.txt
