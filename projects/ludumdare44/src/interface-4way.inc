@@ -18,19 +18,61 @@ HANDLE_INPUT_4WAY_MODE:
 		lda temp1
 		cmp #kb_left_arrow
 		beq @HANDLE_KB_LEFT
+		cmp #kb_right_arrow
+		beq @HANDLE_KB_RIGHT
+		cmp #kb_up_arrow
+		beq @HANDLE_KB_UP
+		cmp #kb_down_arrow
+		beq @HANDLE_KB_DOWN
 		cmp #kb_escape
 		beq @HANDLE_KB_ESCAPE
 
 		JMP @WAITFORINPUT
 
+  ; examine
 	@HANDLE_KB_LEFT:
-
     JSR PLAY_BEEP_SELECT
 
 		Util_LOAD_SYM txt_examine, arg1w
 		JSR TE_PRINT_TEXT
 
 		lda #interface_mode_examine
+		sta ui_state
+
+		JMP @DONE
+
+  ; talk
+	@HANDLE_KB_RIGHT:
+    JSR PLAY_BEEP_SELECT
+
+		Util_LOAD_SYM txt_talk, arg1w
+		JSR TE_PRINT_TEXT
+
+		lda #interface_mode_talk
+		sta ui_state
+
+		JMP @DONE
+
+  ; interact
+	@HANDLE_KB_UP:
+    JSR PLAY_BEEP_SELECT
+
+		Util_LOAD_SYM txt_interact, arg1w
+		JSR TE_PRINT_TEXT
+
+		lda #interface_mode_interact
+		sta ui_state
+
+		JMP @DONE
+
+  ; walk
+	@HANDLE_KB_DOWN:
+    JSR PLAY_BEEP_SELECT
+
+		Util_LOAD_SYM txt_walk, arg1w
+		JSR TE_PRINT_TEXT
+
+		lda #interface_mode_walk
 		sta ui_state
 
 		JMP @DONE

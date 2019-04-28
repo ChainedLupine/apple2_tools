@@ -4,7 +4,7 @@
 .global GS_RESET
 
 max_inv_items = 5
-.global inventory_start, inventory_me, inventory_ramen, inventory_temp1, inventory_temp2, inventory_temp3
+.global inventory_start, inventory_slot1, inventory_slot2, inventory_slot3, inventory_slot4, inventory_slot5
 
 max_nearby_items = 5
 .global nearby_start, nearby_slot1, nearby_slot2, nearby_slot3, nearby_slot4, nearby_slot5
@@ -20,18 +20,20 @@ max_exits_items = 5
 .struct inventory_struct
   tileid    .byte
 	type 			.byte
-	owned 		.byte
   state     .byte
 .endstruct
 
 .struct exit_struct
   tileid    .byte
   leadsto   .byte
+  typereq   .byte
 .endstruct
 
 .macro clear_inventory addr
 		lda #0
     sta addr+inventory_struct::state
+    lda #0
+    sta addr+inventory_struct::type
 .endmacro
 
 .macro clear_nearby addr
@@ -45,7 +47,7 @@ max_exits_items = 5
 .endmacro
 
 .macro build_inventory_item
-	.RES .sizeof(inventory_struct) - 2, $00
+	.RES .sizeof(inventory_struct), $00
 .endmacro
 
 .macro build_nearby_item

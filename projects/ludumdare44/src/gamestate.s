@@ -1,4 +1,6 @@
 ; variables for tracking game state
+.include "zeropage.inc"
+.include "utils.inc"
 
 .include "gamestate.inc"
 .include "interface.inc"
@@ -22,27 +24,78 @@ GS_RESET:
 		RTS
 
 GS_RESET_INV:
-		clear_inventory inventory_me
-		clear_inventory inventory_ramen
-		clear_inventory inventory_temp1
-		clear_inventory inventory_temp2
-		clear_inventory inventory_temp3
+		clear_inventory inventory_slot1
+		clear_inventory inventory_slot2
+		clear_inventory inventory_slot3
+		clear_inventory inventory_slot4
+		clear_inventory inventory_slot5
+
+		lda #tileid_inv_me
+		sta inventory_slot1+inventory_struct::tileid
+		lda #tileid_inv_ramen
+		sta inventory_slot2+inventory_struct::tileid
+		sta inventory_slot3+inventory_struct::tileid
+		sta inventory_slot4+inventory_struct::tileid
+		sta inventory_slot5+inventory_struct::tileid
 
 		lda #1
-		sta inventory_me+inventory_struct::owned ; we always own ourselves (DEEP)
-		sta inventory_ramen+inventory_struct::owned
-		sta inventory_temp1+inventory_struct::owned
-		sta inventory_temp2+inventory_struct::owned
-		sta inventory_temp3+inventory_struct::owned
+		sta inventory_slot1+inventory_struct::type
+		lda #0
+		sta inventory_slot2+inventory_struct::type
+		sta inventory_slot3+inventory_struct::type
+		sta inventory_slot4+inventory_struct::type
+		sta inventory_slot5+inventory_struct::type
 
 		RTS
 
+		; arg1 = inv type
+		; sets carry on successful add, reg_a/x will be addr of slot added to
+GS_ADD_INV_ITEM:
+		ZP_SAVE
+		lda #<inventory_start
+		sta temp1w 
+		lda #>inventory_start
+		sta temp1w+1
+
+		ldx #0
+	@LOOP_INV:
+		phx
+		ldy #inventory_struct::type
+		lda (temp1w),y
+		beq @OCCUPIED
+		; empty slot, select it
+
+		sec ; set carry, we have item
+		lda temp1w
+		ldx temp1w+1
+		pha
+		phx
+		ZP_RESTORE
+		plx
+		pla
+		RTS
+
+	@OCCUPIED:
+		; move on to next item
+		Util_Inc_16_Addr_Struct temp1w, inventory_struct
+		inx
+		cmp #max_inv_items
+		bcc @LOOP_INV
+
+		clc
+		ZP_RESTORE
+		RTS
+
 GS_RESET_NEARBY:
-		lda #1
+		lda #0
 		sta nearby_slot1+nearby_struct::type
+		lda #0
 		sta nearby_slot2+nearby_struct::type
+		lda #0
 		sta nearby_slot3+nearby_struct::type
+		lda #0
 		sta nearby_slot4+nearby_struct::type
+		lda #0
 		sta nearby_slot5+nearby_struct::type
 
 		lda #tileid_nearby_test
@@ -64,11 +117,19 @@ GS_RESET_EXITS:
 		sta exit_5+exit_struct::tileid
 
 		lda #2
-		;sta exit_1+exit_struct::leadsto
-		;sta exit_2+exit_struct::leadsto
-		;sta exit_3+exit_struct::leadsto
-		;sta exit_4+exit_struct::leadsto
-		;sta exit_5+exit_struct::leadsto
+		sta exit_1+exit_struct::leadsto
+		sta exit_2+exit_struct::leadsto
+		sta exit_3+exit_struct::leadsto
+		sta exit_4+exit_struct::leadsto
+		lda #0
+		sta exit_5+exit_struct::leadsto
+
+		lda #2
+		sta exit_1+exit_struct::typereq
+		sta exit_2+exit_struct::typereq
+		sta exit_3+exit_struct::typereq
+		sta exit_4+exit_struct::typereq
+		sta exit_5+exit_struct::typereq
 
 		RTS
 
@@ -85,30 +146,20 @@ GS_RESET_EXITS:
 
 	; max 5 inventory items
 	inventory_start:
-	inventory_me:
+	inventory_slot1:
 		; first byte is always our tileid
-		.byte tileid_inv_me
-		.byte $00
 		build_inventory_item
 
-	inventory_ramen:
-		.byte tileid_inv_ramen
-		.byte $01
+	inventory_slot2:
 		build_inventory_item
 
-	inventory_temp1:
-		.byte tileid_inv_ramen
-		.byte $02
+	inventory_slot3:
 		build_inventory_item
 
-	inventory_temp2:
-		.byte tileid_inv_ramen
-		.byte $02
+	inventory_slot4:
 		build_inventory_item
 
-	inventory_temp3:
-		.byte tileid_inv_ramen
-		.byte $02
+	inventory_slot5:
 		build_inventory_item
 
 	; max 5 nearby items in room

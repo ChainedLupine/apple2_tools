@@ -65,7 +65,7 @@ UI_DRAW_RIGHT_PANEL:
 		
 		CMP #interface_mode_selector
 		BEQ @PREPARE_SELECTOR
-		
+
 		RTS		
 	
 	@PREPARE_4_ARROW:
@@ -117,6 +117,7 @@ DRAW_SELECTOR_ELEMENTS:
 
 
 UI_DRAW_INVENTORY:
+		ZP_SAVE
 		draw_single_largetile #tileid_invbar, #10, #4
 		draw_single_largetile #tileid_invbar+1, #12, #4
 		draw_single_largetile #tileid_invbar+2, #14, #4
@@ -143,7 +144,7 @@ UI_DRAW_INVENTORY:
 
 	@LOOP_INV:
 		phx
-		ldy #inventory_struct::owned
+		ldy #inventory_struct::type
 		lda (temp1w),y
 		beq @DONT_OWN
 		; owned item, now draw it
@@ -181,11 +182,11 @@ UI_DRAW_INVENTORY:
 		JMP @LOOP_INV
 	:
 
-
+		ZP_RESTORE
 		RTS
 
 UI_DRAW_NEARBY:
-
+		ZP_SAVE
 		draw_single_largetile #tileid_nearbybar, #10, #9
 		draw_single_largetile #tileid_nearbybar+1, #12, #9
 		draw_single_largetile #tileid_nearbybar+2, #14, #9
@@ -248,10 +249,11 @@ UI_DRAW_NEARBY:
 		JMP @LOOP_NEARBY
 	:
 
+		ZP_RESTORE
 		RTS
 
 UI_DRAW_EXITS:
-
+		ZP_SAVE
 		draw_single_largetile #tileid_exitsbar, #10, #14
 		draw_single_largetile #tileid_exitsbar+1, #12, #14
 		draw_single_largetile #tileid_exitsbar+2, #14, #14
@@ -314,6 +316,7 @@ UI_DRAW_EXITS:
 		JMP @LOOP_EXITS
 	:
 
+		ZP_RESTORE
 		RTS
 
 .include "interface-rightpanel.inc"
@@ -372,29 +375,41 @@ UI_CHECK_INPUT:
 		lda ui_state
 		cmp #interface_mode_4way
 		beq @FOURWAY_START
-		cmp #interface_mode_examine
-		beq @COMMAND_EXAMINE
 		cmp #interface_mode_selector
 		beq @SELECTOR
+		cmp #interface_mode_examine
+		beq @COMMAND_EXAMINE
+		cmp #interface_mode_interact
+		beq @COMMAND_WALK
+		cmp #interface_mode_talk
+		beq @COMMAND_TALK
+		cmp #interface_mode_walk
+		beq @COMMAND_INTERACT
 
 		JMP @DONE
 
 	@FOURWAY_START:
-
 		JSR HANDLE_INPUT_4WAY_MODE
-
 		JMP @DONE
 
 	@COMMAND_EXAMINE:
-
 		JSR HANDLE_INPUT_EXAMINE
+		JMP @DONE
 
+	@COMMAND_INTERACT:
+		JSR HANDLE_INPUT_INTERACT
+		JMP @DONE
+
+	@COMMAND_TALK:
+		JSR HANDLE_INPUT_TALK
+		JMP @DONE
+
+	@COMMAND_WALK:
+		JSR HANDLE_INPUT_WALK
 		JMP @DONE
 
 	@SELECTOR:
-
 		JSR HANDLE_INPUT_SELECTOR
-
 		JMP @DONE
 
 	@DONE:
@@ -403,6 +418,9 @@ UI_CHECK_INPUT:
 
 .include "interface-4way.inc"
 .include "interface-examine.inc"
+.include "interface-interact.inc"
+.include "interface-talk.inc"
+.include "interface-walk.inc"
 .include "interface-selector.inc"
 
 .segment "DATA_H"
@@ -419,7 +437,7 @@ UI_CHECK_INPUT:
 		; 4 = walk mode
 
 	ui_selector_state:
-		.byte $00	; 
+		.byte $00	; bitflag
 
 	; number of active inv items
 	ui_selector_active_inv:
@@ -433,17 +451,36 @@ UI_CHECK_INPUT:
 	ui_selector_active_exits:
 		.byte $00
 
-	ui_selector_selected_thing:
+	ui_selector_second_mode:
+		.byte $00
+
+	ui_selector_selected_thing_first:
+		.addr $0000
+	ui_selector_selected_thing_second:
 		.addr $0000
 
 .segment "RODATA_H"
 
 		tiles_filename:		Util_LSTR "INGAME.DHGR"
 
-		txt_enter_cmd:		.asciiz "What shall you do? "
+		txt_enter_cmd:		.asciiz "What shall you do? [ARROW KEYS=select]"
 
 		txt_examine:			.asciiz "Examine..."
 
-		txt_examine_what:	.asciiz "What will you examine? [ESC to abort] "
+		txt_interact:			.asciiz "Interact..."
+
+		txt_talk:			.asciiz "Talk..."
+
+		txt_walk:			.asciiz "Walk to..."
+
+		txt_examine_what:	.asciiz "What will you examine? [ESC=abort, SPACE=select] "
+
+		txt_interact_what:	.asciiz "What is interacting? [ESC=abort, SPACE=select] "
+
+		txt_interact_what2:	.asciiz "And the target? [ESC=abort, SPACE=select] "
+
+		txt_talk_what:	.asciiz "Who or what are you talking to? [ESC=abort, SPACE=select] "
+		
+		txt_walk_where:	.asciiz "Where are you walking to? [ESC=abort, SPACE=select] "
 
 		txt_debug:				.asciiz "gothere"
