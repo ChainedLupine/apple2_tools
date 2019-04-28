@@ -1,0 +1,11 @@
+; interface
+
+.global UI_LOAD_TILES, UI_COPY_TILES_TO_PAGE1
+.global UI_CLEAR_RIGHT_PANEL, UI_CLEAR_TOP_PANEL
+.global UI_DRAW_RIGHT_PANEL, UI_DRAW_HEALTH, UI_DRAW_TIME
+.global UI_SHOW_DISK_LOAD, UI_CLEAR_DISK_LOAD
+.global UI_CHECK_INPUT
+
+.global UI_DRAW_TOP_RIGHT_PANEL
+
+.global tiles_img_main, tiles_img_aux

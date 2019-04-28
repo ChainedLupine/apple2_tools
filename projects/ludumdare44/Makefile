@@ -1,6 +1,6 @@
 # be careful, any BINFILE name must be 8 chars max
 BINFILE = EXUBER
-OBJS = main.o tileengine.o file.o grfx.o textengine.o
+OBJS = main.o tileengine.o file.o grfx.o textengine.o interface.o gamestate.o
 LIBS = apple2rom.o prodos.o
 TARGET_ARCH = apple2enh
 TARGET_ASM_MAP = apple2enh-asm-prodos-gfx.cfg
@@ -14,7 +14,7 @@ DISKVOLUME1 = EXUBER1
 DISKIMAGE2 = EXUBERLD44-D2.PO
 DISKVOLUME2 = EXUBER2
 
-ASSETS_DISK1 = assets/ld44intro.dhgr assets/titlescr.dhgr
+ASSETS_DISK1 = assets/ld44intro.dhgr assets/titlescr.dhgr assets/ingame.dhgr
 ASSETS_DISK2 = assets/ingame.dhgr
 
 include ../../tools/template/binasm.mk
@@ -59,7 +59,13 @@ obj/file.o: src/file.s src/zeropage.inc src/file.inc
 obj/textengine.o: src/textengine.s src/zeropage.inc src/textengine.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
-obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc
+obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestate.inc
+	$(CA65) $(AFLAGS) $< -o $@
+
+obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc
+	$(CA65) $(AFLAGS) $< -o $@
+
+obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
 copyto-disk1: $(DISKIMAGE1)

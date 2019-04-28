@@ -1,6 +1,7 @@
+.include "zeropage.inc"
+
 .include "apple2.inc"
 .include "apple2rom.inc"
-.include "zeropage.inc"
 .include "tables.inc"
 
 .segment "CODE_END_H"
@@ -25,6 +26,8 @@
 		; temp2w = calculated dst_addr
 		; temp3w = calculated tile addr offset in table
 TILEENGINE_RENDER_LARGE_TILE:
+		ZP_SAVE
+
 		LDX arg1
 		LDA LARGETILE_TILEID_Y_LOOKUP, X ; tile_y = large_tile_y_lookup(tileid)
 		STA temp1 	; contains y offset in tile y
@@ -146,6 +149,9 @@ TILEENGINE_RENDER_LARGE_TILE:
 		
 	@DONE_LINES:
 		SEI
+
+		ZP_RESTORE
+
 		RTS
 
 
@@ -166,6 +172,7 @@ TILEENGINE_RENDER_LARGE_TILE:
 		; temp2w = calculated dst_addr
 		; temp3w = calculated tile addr offset in table
 TILEENGINE_RENDER_LARGE_TILE_ANYLINE:
+		ZP_SAVE
 		LDX arg1
 		LDA LARGETILE_TILEID_Y_LOOKUP, X ; tile_y = large_tile_y_lookup(tileid)
 		STA temp1 	; contains y offset in tile y
@@ -283,5 +290,7 @@ TILEENGINE_RENDER_LARGE_TILE_ANYLINE:
 		
 	@DONE_LINES:
 		SEI
+
+		ZP_RESTORE
 		RTS
 		

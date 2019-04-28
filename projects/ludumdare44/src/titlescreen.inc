@@ -1,5 +1,7 @@
 ; titlescreen and opening logo
 
+.include "interface.inc"
+
 .segment "CODE_H"
 
 OPENING_LOGO:

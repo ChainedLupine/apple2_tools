@@ -19,7 +19,7 @@ FILE_LOAD_DHGR_TO_RAM:
 		
 		ProDOS_OPEN open_param		
 		bcc     :+
-        jmp     PRODOSERROR
+  	jmp     PRODOSERROR
 		
 		; file is open, so now read
 :		LDA open_param+ProDOS::STRUCT_OPEN_PARAM::REF_NUM		
@@ -37,7 +37,7 @@ FILE_LOAD_DHGR_TO_RAM:
 
 		ProDOS_READ read_param
 		bcc     :+
-        jmp     PRODOSERROR
+    jmp     PRODOSERROR
 		
 		; now compare data read
 :		LDA #<IMG_BUFFER_READ_AMOUNT
@@ -77,7 +77,7 @@ FILE_LOAD_DHGR_TO_RAM:
 		; -- closing file ---------------------------
 		ProDOS_CLOSE close_param
 		bcc     :+
-        jmp     PRODOSERROR
+  	jmp     PRODOSERROR
 :		
 		; -- all done -------------------------------
 		RTS

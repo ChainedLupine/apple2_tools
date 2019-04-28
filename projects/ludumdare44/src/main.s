@@ -7,8 +7,12 @@
 .include "tileengine.inc"
 .include "grfx.inc"
 .include "textengine.inc"
+.include "interface.inc"
+.include "gamestate.inc"
 
 .segment "CODE_H"
+
+		ZP_SETUP
 
 		; initial ProDOS SYSTEM setup
 		JSR START_PRODOS
@@ -18,9 +22,6 @@
 
 		ROM_PRINT txt_loading
 
-		Util_LOAD_SYM tiles_img_aux, arg2w
-		Util_LOAD_SYM tiles_img_main, arg3w
-
 		LDA #$FF
 		STA arg1
 		JSR GRFX::DHGR_CLEAR_TO_COLOR_PAGE1
@@ -29,24 +30,34 @@
 		JSR ROM::GFX_DHGR_PAGE1
 
 		
-		;JMP SKIP_INTRO
+		JMP SKIP_INTRO
 		
 		.include "titlescreen.inc"
 
 	SKIP_INTRO:
 	
-		; -- load our tile image ------------------------------
-		
-		Util_LOAD_SYM tiles_filename, arg1w
-		
-		JSR FILE_LOAD_DHGR_TO_RAM
-		
+		JSR UI_LOAD_TILES
+	
 		; -- going to graphics mode ---------------------------
 
 		JSR ROM::GFX_MODE_DHGR_MIXED
 		JSR ROM::GFX_DHGR_PAGE1
 
+		;JSR UI_COPY_TILES_TO_PAGE1
+
+		JSR GS_RESET
+
 		JSR TE_CLEAR_TEXT
+
+		JSR UI_CLEAR_TOP_PANEL
+		
+		JSR UI_CLEAR_RIGHT_PANEL
+
+		JSR UI_DRAW_RIGHT_PANEL
+		
+		JSR UI_SHOW_DISK_LOAD
+		
+		JMP @NOCPY
 		
 		lda #05
 		lda #06
@@ -64,9 +75,9 @@
 		STA arg1w+1
 		JSR TE_PRINT_TEXT
 
-		;JMP @NOCPY
 		
-		JSR ROM::GETKEY
+		
+		;JSR ROM::GETKEY
 
 		LDA #<txt_test2
 		STA arg1w
@@ -76,80 +87,26 @@
 		
 		JMP EXIT_GETKEY
 		
-		CLI		
-		LDA ROM::SW_HIRES 		; need HIRES before we can use the MAIN/AUX writes below
-		STA ROM::SW_80STOREON	; enable PAGE1/2 to control MAIN/AUX banks for $2000-$3FFF
-		STA ROM::SW_PAGE1		; MAIN bank
-		; now move load_buffer_main to $2000 in MAIN
-		ROM_MEMCOPY ROM::MEM_HGR_PAGE1, tiles_img_main, $2000
-		STA ROM::SW_PAGE2		; AUX bank
-		; now AUXMOVE load_buffer_aux to $2000 in AUX
-		ROM_MEMCOPY ROM::MEM_HGR_PAGE1, tiles_img_aux, $2000
-		
-		STA ROM::SW_PAGE1		; MAIN bank
-		STA ROM::SW_80STOREOFF
-		SEI
 		
 		JMP EXIT_GETKEY
 		
 @NOCPY:
-		; -- prepare to render tiles --------------------------
+		; -- main game loop --------------------------
 
-		; place our tile image buffers into arg1 (aux) and arg2 (main)
-		Util_LOAD_SYM tiles_img_aux, arg1w
-		Util_LOAD_SYM tiles_img_main, arg2w
-	
-		LDA #0
-		STA arg1 ; tileid
-		LDA #0
-		STA arg2 ; dst x in small tiles
-		LDA #4
-		STA arg3 ; dst y in small tiles
+		
+		
 	
 	@MAINLOOP:
-		
-	@RLOOP:
-	
-		JSR TILEENGINE_RENDER_LARGE_TILE_ANYLINE
-		
-		;JMP @INC
-		;JMP EXIT_GETKEY
-		
-	@INC:
-		; just blindly increment tiles
-		;INC arg1
-		LDA arg1
-		CMP #120
-		BNE :+
-		LDA #0
-		STA arg1
-		
-	:	LDA arg2
-		INC
-		INC
-		CMP #2
-		BCC @NORESETX
-		; end of width, reset
-		LDA #0
-		STA arg2
 
-		; and increment y
-		LDA arg3
-		INC
-		INC
-		CMP #4
-		BCC :+
-		LDA #0
-		STA arg1 ; reset tile to 0 too
-		LDA #4
-	:	STA arg3	
+		JSR ROM::GETKEY
+
+		JSR UI_CHECK_INPUT
+
+		JSR UI_DRAW_TOP_RIGHT_PANEL
+
 	
 		JMP @MAINLOOP
 		
-	@NORESETX:
-		STA arg2
-	
-		JMP @RLOOP
 		
 EXIT_GETKEY:
 		JSR ROM::GETKEY
@@ -167,7 +124,6 @@ QUIT_TO_PRODOS:
 
 .segment "RODATA_H"
 
-	tiles_filename:		Util_LSTR "INGAME.DHGR"
 	txt_success:		.asciiz "OK!"
 	txt_loading:		.asciiz "Loading..."
 							   ;01234567890123456789012345678901234567890123456789012345678901234567890123456789
@@ -176,13 +132,5 @@ QUIT_TO_PRODOS:
 	txt_test2:			.asciiz "another test!"
 	
 		
-.segment "DATA_H"
-
-	tiles_img_main: .res $2000, $00   ; 8192 bytes
-	tiles_img_aux: .res $2000, $00   ; 8192 bytes
-	
-	
-	
-	
 	
 		

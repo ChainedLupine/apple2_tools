@@ -40,19 +40,19 @@ SW_CLRAN3		:= $C05F		; Turn off annunciator 3 on game-port IO (disable double-wi
 FL_PAGE2		:= $C01C		; is page2 on (or aux selected)
 
 ; zeropage temps
-A1L			:= $3C
+A1L			  := $3C
 A1H   		:= $3D
 
-A2L			:= $3E
+A2L			  := $3E
 A2H   		:= $3F
 
-A3L			:= $40
+A3L			  := $40
 A3H   		:= $41
 
-A4L			:= $42
+A4L			  := $42
 A4H   		:= $43
 
-STACK       := $0100
+STACK     := $0100
 VERSION		:= $FBB3
 
 .global GETKEY
