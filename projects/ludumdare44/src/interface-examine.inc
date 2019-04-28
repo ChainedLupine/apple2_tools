@@ -10,8 +10,13 @@ HANDLE_INPUT_EXAMINE:
 		sta ui_state
 
     ; set selector state (inv, nearby)
-    lda #selector_state_mask_inv
-    ora #selector_state_mask_nearby
+    ;lda #selector_state_mask_inv
+    ;ora #selector_state_mask_nearby
+		;ora #selector_state_mask_exits
+
+		;lda #selector_state_mask_nearby
+
+		lda #selector_state_mask_exits
     sta ui_selector_state
 
     RTS

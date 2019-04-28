@@ -15,6 +15,8 @@ GS_RESET:
 
 		JSR GS_RESET_NEARBY
 
+		JSR GS_RESET_EXITS
+
 		JSR UI_RESET
 
 		RTS
@@ -49,6 +51,24 @@ GS_RESET_NEARBY:
 		sta nearby_slot3+nearby_struct::tileid
 		sta nearby_slot4+nearby_struct::tileid
 		sta nearby_slot5+nearby_struct::tileid
+
+		RTS
+
+GS_RESET_EXITS:
+
+		lda #tileid_exit_north
+		sta exit_1+exit_struct::tileid
+		sta exit_2+exit_struct::tileid
+		sta exit_3+exit_struct::tileid
+		sta exit_4+exit_struct::tileid
+		sta exit_5+exit_struct::tileid
+
+		lda #2
+		;sta exit_1+exit_struct::leadsto
+		;sta exit_2+exit_struct::leadsto
+		;sta exit_3+exit_struct::leadsto
+		;sta exit_4+exit_struct::leadsto
+		;sta exit_5+exit_struct::leadsto
 
 		RTS
 
@@ -104,4 +124,16 @@ GS_RESET_NEARBY:
 	nearby_slot5:
 		build_nearby_item
 
+	; max 5 exits in room
+	exit_start:
+	exit_1:
+		build_exit
+	exit_2:
+		build_exit
+	exit_3:
+		build_exit
+	exit_4:
+		build_exit
+	exit_5:
+		build_exit
 

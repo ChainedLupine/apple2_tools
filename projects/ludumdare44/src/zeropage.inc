@@ -76,8 +76,8 @@
       lda $00,y
       sta (zpsave_addr_l),y
       dey
-      cmp #$60
-      bne :-
+      cpy #$60
+      bcs :-
 
     ZP_SAVE_INC
   .endmacro
@@ -90,8 +90,8 @@
       lda (zpsave_addr_l),y
       sta $00,y
       dey
-      cmp #$60
-      bne :-
+      cpy #$60
+      bcs :-
 
   .endmacro
 

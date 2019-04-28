@@ -25,6 +25,8 @@ HANDLE_INPUT_4WAY_MODE:
 
 	@HANDLE_KB_LEFT:
 
+    JSR PLAY_BEEP_SELECT
+
 		Util_LOAD_SYM txt_examine, arg1w
 		JSR TE_PRINT_TEXT
 
@@ -35,6 +37,7 @@ HANDLE_INPUT_4WAY_MODE:
 
   @HANDLE_KB_ESCAPE:
 
+    JSR PLAY_BEEP_DESELECT
 		;lda #interface_mode_4way
 		;sta ui_state
 

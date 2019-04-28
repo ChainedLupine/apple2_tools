@@ -8,6 +8,7 @@
 .include "gamestate.inc"
 .include "file.inc"
 .include "textengine.inc"
+.include "grfx.inc"
 
 .segment "CODE_H"
 
@@ -109,7 +110,7 @@ DRAW_SELECTOR_ELEMENTS:
 	lda ui_selector_state
 	and #selector_state_mask_exits
 	beq :+
-	;JSR UI_DRAW_EXITS
+	JSR UI_DRAW_EXITS
 :
 
 	RTS
@@ -125,6 +126,9 @@ UI_DRAW_INVENTORY:
 		; draw our contents
 
 		ldx #max_inv_items
+
+		lda #00
+		sta ui_selector_active_inv
 
 		lda #10
 		sta temp1  ; inv x
@@ -149,6 +153,9 @@ UI_DRAW_INVENTORY:
 		sta temp3
 
 		draw_single_largetile temp3, temp1, temp2
+
+		; increate number of active inv items in list
+		inc ui_selector_active_inv
 
 		; now increment x to next slot
 		lda temp1
@@ -187,6 +194,9 @@ UI_DRAW_NEARBY:
 		
 		ldx #max_nearby_items
 
+		lda #00
+		sta ui_selector_active_nearby
+
 		lda #10
 		sta temp1  ; inv x
 
@@ -211,6 +221,9 @@ UI_DRAW_NEARBY:
 
 		draw_single_largetile temp3, temp1, temp2
 
+		; increate number of active nearby items in list
+		inc ui_selector_active_nearby
+
 		; now increment x to next slot
 		lda temp1
 		inc
@@ -233,6 +246,72 @@ UI_DRAW_NEARBY:
 		; if still items left, draw more
 		beq :+
 		JMP @LOOP_NEARBY
+	:
+
+		RTS
+
+UI_DRAW_EXITS:
+
+		draw_single_largetile #tileid_exitsbar, #10, #14
+		draw_single_largetile #tileid_exitsbar+1, #12, #14
+		draw_single_largetile #tileid_exitsbar+2, #14, #14
+		draw_single_largetile #tileid_exitsbar+3, #16, #14
+		draw_single_largetile #tileid_exitsbar+4, #18, #14
+		
+		ldx #max_exits_items
+
+		lda #00
+		sta ui_selector_active_exits
+
+		lda #10
+		sta temp1  ; inv x
+
+		lda #15
+		sta temp2  ; inv y
+
+		lda #<exit_start
+		sta temp1w 
+		lda #>exit_start
+		sta temp1w+1
+
+	@LOOP_EXITS:
+		phx
+		ldy #exit_struct::leadsto
+		lda (temp1w),y
+		beq @NOT_PRESENT
+		; owned item, now draw it
+
+		ldy #exit_struct::tileid
+		lda (temp1w),y
+		sta temp3
+
+		draw_single_largetile temp3, temp1, temp2
+
+		; increate number of active exits in list
+		inc ui_selector_active_exits
+
+		; now increment x to next slot
+		lda temp1
+		inc
+		inc
+		cmp #20
+		bcc :+
+		lda temp2
+		inc
+		inc
+		sta temp2
+		lda #10
+	:
+		sta temp1
+
+	@NOT_PRESENT:
+		; nearby item isn't in here
+		Util_Inc_16_Addr_Struct temp1w, exit_struct
+		plx
+		dex
+		; if still items left, draw more
+		beq :+
+		JMP @LOOP_EXITS
 	:
 
 		RTS
@@ -341,7 +420,21 @@ UI_CHECK_INPUT:
 
 	ui_selector_state:
 		.byte $00	; 
-		
+
+	; number of active inv items
+	ui_selector_active_inv:
+		.byte $00
+
+	; number of active nearbys
+	ui_selector_active_nearby:
+		.byte $00
+
+	; number of active exits
+	ui_selector_active_exits:
+		.byte $00
+
+	ui_selector_selected_thing:
+		.addr $0000
 
 .segment "RODATA_H"
 
