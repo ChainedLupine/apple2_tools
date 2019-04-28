@@ -7,24 +7,16 @@
 .include "tileengine.inc"
 .include "gamestate.inc"
 .include "file.inc"
+.include "textengine.inc"
 
 .segment "CODE_H"
 
-largetile_width 		= 10
-smalltime_width			= 20
-; icon locations in tilemap
-tileid_blank				= 0
-tileid_disk_icon		= (largetile_width * 11 + 9)
+UI_RESET:
+		lda #interface_mode_4way
+		sta ui_state
 
-tileid_moon1_icon		= (largetile_width * 10 + 2)
-tileid_moon2_icon		= (largetile_width * 11 + 2)
-tileid_moon3_icon		= (largetile_width * 11 + 3)
-tileid_moon4_icon		= (largetile_width * 10 + 3)
+		RTS
 
-tileid_health1_icon		= (largetile_width * 10 + 4)
-tileid_health2_icon		= (largetile_width * 11 + 4)
-tileid_health3_icon		= (largetile_width * 11 + 5)
-tileid_health4_icon		= (largetile_width * 10 + 5)
 
 UI_LOAD_TILES:
 		; -- load our tile image ------------------------------
@@ -58,154 +50,194 @@ UI_COPY_TILES_TO_PAGE1:
 
 UI_DRAW_TOP_RIGHT_PANEL:
 		; draw health icon
-		JSR UI_DRAW_HEALTH
-		
+		JSR UI_DRAW_HEALTH		
 		JSR UI_DRAW_TIME
 
 		RTS
 		
 UI_DRAW_RIGHT_PANEL:
-
 		JSR UI_DRAW_TOP_RIGHT_PANEL
 
 		LDA ui_state
-		CMP #0
-		BNE @DRAW_4_ARROW
+		CMP #interface_mode_4way
+		BEQ @PREPARE_4_ARROW
 		
-		CMP #1
-		BEQ @DRAW_OTHER
+		CMP #interface_mode_selector
+		BEQ @PREPARE_SELECTOR
 		
 		RTS		
 	
-	@DRAW_4_ARROW:
+	@PREPARE_4_ARROW:
+
+		JSR DRAW_4WAY_ELEMENTS
 
 		RTS
 
-	@DRAW_OTHER:
+	@PREPARE_SELECTOR:
+
+		JSR DRAW_SELECTOR_ELEMENTS
 	
 		RTS
-		
-UI_DRAW_HEALTH:
-		draw_tile_prepare
 
-		; upper left
-		lda #tileid_health1_icon
-		sta temp1
+DRAW_4WAY_ELEMENTS:
+	draw_single_largetile #tileid_cmd_move, #14, #14
+	draw_single_largetile #tileid_cmd_examine, #12, #16
+	draw_single_largetile #tileid_cmd_center, #14, #16
+	draw_single_largetile #tileid_cmd_talk, #16, #16
+	draw_single_largetile #tileid_cmd_interact, #14, #18
 
-		lda state_health
-		cmp #1
-		bcs :+ ; if >=1
-		lda #tileid_blank
-		sta temp1
+	JSR UI_DRAW_INVENTORY
+
+	JSR UI_DRAW_NEARBY
+
+	RTS
+
+DRAW_SELECTOR_ELEMENTS:
+
+	lda ui_selector_state
+	and #selector_state_mask_inv
+	beq :+
+	JSR UI_DRAW_INVENTORY
+:
+
+	lda ui_selector_state
+	and #selector_state_mask_nearby
+	beq :+
+	JSR UI_DRAW_NEARBY
+:
+
+	lda ui_selector_state
+	and #selector_state_mask_exits
+	beq :+
+	;JSR UI_DRAW_EXITS
+:
+
+	RTS
+
+
+UI_DRAW_INVENTORY:
+		draw_single_largetile #tileid_invbar, #10, #4
+		draw_single_largetile #tileid_invbar+1, #12, #4
+		draw_single_largetile #tileid_invbar+2, #14, #4
+		draw_single_largetile #tileid_invbar+3, #16, #4
+		draw_single_largetile #tileid_invbar+4, #18, #4
+
+		; draw our contents
+
+		ldx #max_inv_items
+
+		lda #10
+		sta temp1  ; inv x
+
+		lda #5
+		sta temp2  ; inv y
+
+		lda #<inventory_start
+		sta temp1w 
+		lda #>inventory_start
+		sta temp1w+1
+
+	@LOOP_INV:
+		phx
+		ldy #inventory_struct::owned
+		lda (temp1w),y
+		beq @DONT_OWN
+		; owned item, now draw it
+
+		ldy #inventory_struct::tileid
+		lda (temp1w),y
+		sta temp3
+
+		draw_single_largetile temp3, temp1, temp2
+
+		; now increment x to next slot
+		lda temp1
+		inc
+		inc
+		cmp #20
+		bcc :+
+		lda temp2
+		inc
+		inc
+		sta temp2
+		lda #10
 	:
-		draw_single_largetile temp1, #16, #0
-
-		; lower left
-		lda #tileid_health2_icon
 		sta temp1
 
-		lda state_health
-		cmp #2
-		bcs :+ ; if >=2
-		lda #tileid_blank
-		sta temp1
+	@DONT_OWN:
+		; don't own item
+		Util_Inc_16_Addr_Struct temp1w, inventory_struct
+		plx
+		dex
+		; if still items left, draw more
+		beq :+
+		JMP @LOOP_INV
 	:
-		draw_single_largetile temp1, #16, #2
 
-		; lower right
-		lda #tileid_health3_icon
-		sta temp1
-
-		lda state_health
-		cmp #3
-		bcs :+ ; if >=3
-		lda #tileid_blank
-		sta temp1
-	:
-		draw_single_largetile temp1, #18, #2
-
-		; upper right
-		lda #tileid_health4_icon
-		sta temp1
-
-		lda state_health
-		cmp #4
-		bcs :+ ; if >=4
-		lda #tileid_blank
-		sta temp1
-	:
-		draw_single_largetile temp1, #18, #0
 
 		RTS
+
+UI_DRAW_NEARBY:
+
+		draw_single_largetile #tileid_nearbybar, #10, #9
+		draw_single_largetile #tileid_nearbybar+1, #12, #9
+		draw_single_largetile #tileid_nearbybar+2, #14, #9
+		draw_single_largetile #tileid_nearbybar+3, #16, #9
+		draw_single_largetile #tileid_nearbybar+4, #18, #9
 		
-UI_DRAW_TIME:
+		ldx #max_nearby_items
 
-		draw_tile_prepare
+		lda #10
+		sta temp1  ; inv x
 
-		; upper left
-		lda #tileid_moon1_icon
-		sta temp1
+		lda #10
+		sta temp2  ; inv y
 
-		lda state_time
-		cmp #1
-		bcs :+ ; if >=1
-		lda #tileid_blank
-		sta temp1
+		lda #<nearby_start
+		sta temp1w 
+		lda #>nearby_start
+		sta temp1w+1
+
+	@LOOP_NEARBY:
+		phx
+		ldy #nearby_struct::type
+		lda (temp1w),y
+		beq @NOT_PRESENT
+		; owned item, now draw it
+
+		ldy #nearby_struct::tileid
+		lda (temp1w),y
+		sta temp3
+
+		draw_single_largetile temp3, temp1, temp2
+
+		; now increment x to next slot
+		lda temp1
+		inc
+		inc
+		cmp #20
+		bcc :+
+		lda temp2
+		inc
+		inc
+		sta temp2
+		lda #10
 	:
-		draw_single_largetile temp1, #10, #0
-
-		; lower left
-		lda #tileid_moon2_icon
 		sta temp1
 
-		lda state_time
-		cmp #2
-		bcs :+ ; if >=2
-		lda #tileid_blank
-		sta temp1
+	@NOT_PRESENT:
+		; nearby item isn't in here
+		Util_Inc_16_Addr_Struct temp1w, nearby_struct
+		plx
+		dex
+		; if still items left, draw more
+		beq :+
+		JMP @LOOP_NEARBY
 	:
-		draw_single_largetile temp1, #10, #2
-
-		; lower right
-		lda #tileid_moon3_icon
-		sta temp1
-
-		lda state_time
-		cmp #3
-		bcs :+ ; if >=3
-		lda #tileid_blank
-		sta temp1
-	:
-		draw_single_largetile temp1, #12, #2
-
-		; upper right
-		lda #tileid_moon4_icon
-		sta temp1
-
-		lda state_time
-		cmp #4
-		bcs :+ ; if >=4
-		lda #tileid_blank
-		sta temp1
-	:
-		draw_single_largetile temp1, #12, #0
 
 		RTS
-	
 
-UI_SHOW_DISK_LOAD:
-		draw_tile_prepare
-
-		draw_single_largetile #tileid_disk_icon, #18, #18
-		
-		RTS
-		
-UI_CLEAR_DISK_LOAD:
-		draw_tile_prepare
-
-		draw_single_largetile #tileid_blank, #18, #18
-
-		RTS
+.include "interface-rightpanel.inc"
 
 UI_CLEAR_TOP_PANEL:
 		draw_tile_prepare
@@ -252,30 +284,47 @@ UI_CLEAR_RIGHT_PANEL:
 		dex
 		bne @CLEAR_LINE
 		RTS
-		
+
+; blocks while waiting for input		
 UI_CHECK_INPUT:
 
-		; dec health, wrapping if <0
-		lda state_health
-		dec
-		bpl :+
-		lda #4
+		JSR UI_DRAW_RIGHT_PANEL
 
-		:
-		sta state_health
+		lda ui_state
+		cmp #interface_mode_4way
+		beq @FOURWAY_START
+		cmp #interface_mode_examine
+		beq @COMMAND_EXAMINE
+		cmp #interface_mode_selector
+		beq @SELECTOR
 
-		; dec health, wrapping if <0
-		lda state_time
-		dec
-		bpl :+
-		lda #4
+		JMP @DONE
 
-		:
-		sta state_time
+	@FOURWAY_START:
+
+		JSR HANDLE_INPUT_4WAY_MODE
+
+		JMP @DONE
+
+	@COMMAND_EXAMINE:
+
+		JSR HANDLE_INPUT_EXAMINE
+
+		JMP @DONE
+
+	@SELECTOR:
+
+		JSR HANDLE_INPUT_SELECTOR
+
+		JMP @DONE
+
+	@DONE:
 
 		RTS
 
-
+.include "interface-4way.inc"
+.include "interface-examine.inc"
+.include "interface-selector.inc"
 
 .segment "DATA_H"
 
@@ -283,9 +332,25 @@ UI_CHECK_INPUT:
 	tiles_img_aux: .res $2000, $00   ; 8192 bytes
 	
 	ui_state:
-		.byte $00  ; 4-arrow mode
+		.byte $00  
+		; 0 = 4-arrow mode
+		; 1 = examine mode
+		; 2 = talk mode
+		; 3 = interact mode
+		; 4 = walk mode
+
+	ui_selector_state:
+		.byte $00	; 
 		
 
 .segment "RODATA_H"
 
 		tiles_filename:		Util_LSTR "INGAME.DHGR"
+
+		txt_enter_cmd:		.asciiz "What shall you do? "
+
+		txt_examine:			.asciiz "Examine..."
+
+		txt_examine_what:	.asciiz "What will you examine? [ESC to abort] "
+
+		txt_debug:				.asciiz "gothere"

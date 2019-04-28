@@ -10,6 +10,8 @@
 .include "interface.inc"
 .include "gamestate.inc"
 
+.forceimport HANDLE_INPUT_SELECTOR
+
 .segment "CODE_H"
 
 		ZP_SETUP
@@ -53,10 +55,8 @@
 		
 		JSR UI_CLEAR_RIGHT_PANEL
 
-		JSR UI_DRAW_RIGHT_PANEL
-		
-		JSR UI_SHOW_DISK_LOAD
-		
+		JSR UI_CLEAR_DISK_LOAD
+				
 		JMP @NOCPY
 		
 		lda #05
@@ -98,14 +98,13 @@
 	
 	@MAINLOOP:
 
-		JSR ROM::GETKEY
+		;JSR ROM::GETKEY
 
 		JSR UI_CHECK_INPUT
 
-		JSR UI_DRAW_TOP_RIGHT_PANEL
-
-	
 		JMP @MAINLOOP
+
+		JSR UI_DRAW_INVENTORY
 		
 		
 EXIT_GETKEY:

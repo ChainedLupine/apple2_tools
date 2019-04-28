@@ -59,13 +59,13 @@ obj/file.o: src/file.s src/zeropage.inc src/file.inc
 obj/textengine.o: src/textengine.s src/zeropage.inc src/textengine.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
-obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestate.inc
+obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestate.inc $(INCLUDE_PATH)/utils.inc src/interface-4way.inc src/interface-examine.inc src/interface-selector.inc src/interface-rightpanel.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
 obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
-obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc
+obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc $(INCLUDE_PATH)/utils.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
 copyto-disk1: $(DISKIMAGE1)

@@ -1,5 +1,6 @@
 ; -- zeropage definitions --------------------
 ; note: TOTALLY stomps all over Applesoft/Integer BASIC, do not use together!
+.feature c_comments
 
 .ifndef ZP_INC_GUARD
 .define ZP_INC_GUARD
@@ -83,7 +84,7 @@
 
   .macro ZP_RESTORE
     ZP_SAVE_DEC
-    
+
     ldy #$8E
     :
       lda (zpsave_addr_l),y
