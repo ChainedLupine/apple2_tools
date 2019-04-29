@@ -1,31 +1,44 @@
 HANDLE_INPUT_EXAMINE:
 
+		lda ui_prev_state
+		cmp #interface_state_examine
+		beq @have_our_selection
+
 		JSR TE_CLEAR_TEXT
 
 		Util_LOAD_SYM txt_examine_what, arg1w
 		JSR TE_PRINT_TEXT
 
+		; set ourselves as previous state
+		lda #interface_state_examine
+		sta ui_prev_state
+
 		; switch UI to select mode
-		lda #interface_mode_selector
+		lda #interface_state_selector
 		sta ui_state
 
+    ; set selector filter (inv, nearby)
+    lda #selector_filter_mask_inv
+    ora #selector_filter_mask_nearby
+		sta ui_selector_filter
 
-		; set selector state (inv only)
-		;lda #selector_state_mask_inv
-		;sta ui_selector_state
+		RTS
 
-		; set selector state (nearby only)
-		;lda #selector_state_mask_nearby
-		;sta ui_selector_state
+	@have_our_selection:
+		JSR TE_CLEAR_TEXT
 
-    ; set selector state (inv, nearby)
-    lda #selector_state_mask_inv
-    ora #selector_state_mask_nearby
-		sta ui_selector_state
+		Util_LOAD_SYM txt_debug, arg1w
+		JSR TE_PRINT_TEXT
 
-		; set selector state (exits only)
-		;lda #selector_state_mask_exits
-    ;sta ui_selector_state
+		JSR ROM::GETKEY
+
+		JSR TE_CLEAR_TEXT
+
+		lda #interface_state_4way
+		sta ui_state
+
+		lda #$ff
+		sta ui_prev_state
 
     RTS
 

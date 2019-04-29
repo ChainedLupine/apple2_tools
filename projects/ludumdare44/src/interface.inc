@@ -58,16 +58,18 @@ kb_right_arrow    = $15
 kb_up_arrow       = $0b
 kb_down_arrow     = $0a
 kb_escape         = $1b
+kb_space          = $20
 
-interface_mode_4way     = 0
-interface_mode_examine  = 1
-interface_mode_talk     = 2
-interface_mode_interact = 3
-interface_mode_walk     = 4
-interface_mode_selector = 5
+interface_state_4way      = 0
+interface_state_examine   = 1
+interface_state_talk      = 2
+interface_state_interact  = 3
+interface_state_walk      = 4
+interface_state_selector  = 5
+interface_state_interact2 = 6
 
-selector_state_mask_inv       = $01
-selector_state_mask_nearby    = $02
-selector_state_mask_exits     = $04
+selector_filter_mask_inv       = $01
+selector_filter_mask_nearby    = $02
+selector_filter_mask_exits     = $04
 
 ;.endif

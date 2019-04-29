@@ -60,7 +60,7 @@ obj/textengine.o: src/textengine.s src/zeropage.inc src/textengine.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
 obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestate.inc $(INCLUDE_PATH)/utils.inc src/interface-4way.inc src/interface-examine.inc src/interface-selector.inc src/interface-rightpanel.inc src/interface-interact.inc src/interface-walk.inc src/interface-talk.inc
-	$(CA65) $(AFLAGS) $< -o $@
+	$(CA65) $(AFLAGS) -l interface.txt $< -o $@
 
 obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc
 	$(CA65) $(AFLAGS) $< -o $@

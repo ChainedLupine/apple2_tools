@@ -9,10 +9,6 @@ selector_x_min = 10
 HANDLE_INPUT_SELECTOR:
 
 		JSR UI_CLEAR_RIGHT_PANEL
-		JSR UI_DRAW_RIGHT_PANEL
-
-		;Util_LOAD_SYM txt_debug, arg1w
-		;JSR TE_PRINT_TEXT
 
     JSR UI_DRAW_RIGHT_PANEL
 
@@ -24,16 +20,16 @@ HANDLE_INPUT_SELECTOR:
     sta temp4  ; cursor x    
 
     ; find out what section is active, starting from bottom going up
-    lda ui_selector_state
-    and #selector_state_mask_inv
+    lda ui_selector_filter
+    and #selector_filter_mask_inv
     beq @no_inv
     lda #0
     sta temp3
     jmp @done
   @no_inv:
 
-	  lda ui_selector_state
-	  and #selector_state_mask_nearby
+	  lda ui_selector_filter
+	  and #selector_filter_mask_nearby
     beq @no_nearby
     lda #1
     sta temp3
@@ -72,11 +68,27 @@ HANDLE_INPUT_SELECTOR:
 		beq @HANDLE_KB_DOWN
 		cmp #kb_escape
 		beq @HANDLE_KB_ESCAPE
+    cmp #kb_space
+    beq @HANDLE_KB_SPACE
 
 		JMP @WAITFORINPUT
 
   @EXIT_INPUT:
     RTS
+
+  @HANDLE_KB_SPACE:
+    JSR PLAY_BEEP_SELECT
+    ; we are in first state
+    ; write to first slot
+    ;todo
+
+    lda ui_prev_state
+    sta ui_state
+    JSR TE_CLEAR_TEXT
+
+    JSR UI_CLEAR_RIGHT_PANEL
+
+    JMP @EXIT_INPUT
 
 	@HANDLE_KB_LEFT:
     JSR @MOVE_ARROW_LEFT
@@ -97,8 +109,11 @@ HANDLE_INPUT_SELECTOR:
 @HANDLE_KB_ESCAPE:
     JSR PLAY_BEEP_DESELECT
 
-		lda #interface_mode_4way
+		lda #interface_state_4way
 		sta ui_state
+
+    lda #$ff
+    sta ui_prev_state
 
     JSR TE_CLEAR_TEXT
 
@@ -226,15 +241,15 @@ SEL_CAN_MOVE_DOWN:
     bne @skip_to_nearby
 
     ; our next line down is nearby
-	  lda ui_selector_state
-	  and #selector_state_mask_nearby
+	  lda ui_selector_filter
+	  and #selector_filter_mask_nearby
     beq :+ ; not active
     sec
     rts
   :
     ; our next line down is exits
-	  lda ui_selector_state
-	  and #selector_state_mask_exits
+	  lda ui_selector_filter
+	  and #selector_filter_mask_exits
     beq :+ ; not active
     sec
     rts
@@ -249,8 +264,8 @@ SEL_CAN_MOVE_DOWN:
     bne @skip_to_exit
 
     ; our next line down is exits
-	  lda ui_selector_state
-	  and #selector_state_mask_exits
+	  lda ui_selector_filter
+	  and #selector_filter_mask_exits
     beq :+ ; not active
     sec
     rts
@@ -268,15 +283,15 @@ SEL_CAN_MOVE_UP:
     bne @skip_to_nearby
 
     ; our prev line up is nearby
-	  lda ui_selector_state
-	  and #selector_state_mask_nearby
+	  lda ui_selector_filter
+	  and #selector_filter_mask_nearby
     beq :+ ; not active
     sec
     rts
   :
     ; our prev line up is inv
-	  lda ui_selector_state
-	  and #selector_state_mask_inv
+	  lda ui_selector_filter
+	  and #selector_filter_mask_inv
     beq :+ ; not active
     sec
     rts
@@ -290,8 +305,8 @@ SEL_CAN_MOVE_UP:
     bne @skip_to_inv
 
     ; our prev line up is inv
-	  lda ui_selector_state
-	  and #selector_state_mask_inv
+	  lda ui_selector_filter
+	  and #selector_filter_mask_inv
     beq :+ ; not active
     sec
     rts
@@ -361,22 +376,22 @@ SEL_NEXT_LINE_DOWN:
     cmp #0 ; start at inv
     bne @check_at_nearby
     
-    lda ui_selector_state
-    and #selector_state_mask_nearby
+    lda ui_selector_filter
+    and #selector_filter_mask_nearby
     beq :+ ; not active
     lda #1 ; select nearby line
     rts
   :
-    lda ui_selector_state
-    and #selector_state_mask_exits
+    lda ui_selector_filter
+    and #selector_filter_mask_exits
     beq :+ ; not active
     lda #2 ; select exit line
   :
     rts
   
   @check_at_nearby:
-    lda ui_selector_state
-    and #selector_state_mask_exits
+    lda ui_selector_filter
+    and #selector_filter_mask_exits
     beq :+ ; not active
     lda #2 ; select exit line
   :
@@ -388,22 +403,22 @@ SEL_NEXT_LINE_UP:
     cmp #2 ; if we are at exits
     bne @check_at_nearby
 
-    lda ui_selector_state
-    and #selector_state_mask_nearby
+    lda ui_selector_filter
+    and #selector_filter_mask_nearby
     beq :+ ; not active
     lda #1 ; select nearby line
     rts
   :
-    lda ui_selector_state
-    and #selector_state_mask_inv
+    lda ui_selector_filter
+    and #selector_filter_mask_inv
     beq :+ ; not active
     lda #0 ; select inv line
   :
     rts
 
   @check_at_nearby:
-    lda ui_selector_state
-    and #selector_state_mask_inv
+    lda ui_selector_filter
+    and #selector_filter_mask_inv
     beq :+ ; not active
     lda #0 ; select inv line
   :

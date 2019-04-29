@@ -18,7 +18,7 @@ OBJ_PATH = obj
 OBJS_PATH = $(addprefix $(OBJ_PATH)/, $(OBJS)) $(addprefix $(OBJ_PATH)/, $(LIBS))
 
 # compiler/linker flags
-AFLAGS = -t $(TARGET_ARCH) -I $(subst /,\,$(INCLUDE_PATH)) -v 
+AFLAGS = -t $(TARGET_ARCH) -I $(subst /,\,$(INCLUDE_PATH)) -v
 #-W2
 LFLAGS = -C $(ASMCFG_PATH)/$(TARGET_ASM_MAP) -m linkmap.txt -v
 

@@ -1,6 +1,9 @@
 
-
 HANDLE_INPUT_4WAY_MODE:
+    ; does not clear text, cuz previous interaction might be displaying something
+
+    JSR UI_DRAW_RIGHT_PANEL
+
 		Util_LOAD_SYM txt_enter_cmd, arg1w
 		JSR TE_PRINT_TEXT
 
@@ -18,13 +21,17 @@ HANDLE_INPUT_4WAY_MODE:
 		lda temp1
 		cmp #kb_left_arrow
 		beq @HANDLE_KB_LEFT
-		cmp #kb_right_arrow
+		
+    cmp #kb_right_arrow
 		beq @HANDLE_KB_RIGHT
-		cmp #kb_up_arrow
+		
+    cmp #kb_up_arrow
 		beq @HANDLE_KB_UP
-		cmp #kb_down_arrow
+		
+    cmp #kb_down_arrow
 		beq @HANDLE_KB_DOWN
-		cmp #kb_escape
+		
+    cmp #kb_escape
 		beq @HANDLE_KB_ESCAPE
 
 		JMP @WAITFORINPUT
@@ -36,10 +43,8 @@ HANDLE_INPUT_4WAY_MODE:
 		Util_LOAD_SYM txt_examine, arg1w
 		JSR TE_PRINT_TEXT
 
-		lda #interface_mode_examine
-		sta ui_state
-
-		JMP @DONE
+		lda #interface_state_examine
+    JMP @NEW_UI
 
   ; talk
 	@HANDLE_KB_RIGHT:
@@ -48,34 +53,28 @@ HANDLE_INPUT_4WAY_MODE:
 		Util_LOAD_SYM txt_talk, arg1w
 		JSR TE_PRINT_TEXT
 
-		lda #interface_mode_talk
-		sta ui_state
-
-		JMP @DONE
+		lda #interface_state_talk
+    JMP @NEW_UI
 
   ; interact
 	@HANDLE_KB_UP:
     JSR PLAY_BEEP_SELECT
 
-		Util_LOAD_SYM txt_interact, arg1w
+		Util_LOAD_SYM txt_walk, arg1w
 		JSR TE_PRINT_TEXT
 
-		lda #interface_mode_interact
-		sta ui_state
-
-		JMP @DONE
+		lda #interface_state_walk
+    JMP @NEW_UI
 
   ; walk
 	@HANDLE_KB_DOWN:
     JSR PLAY_BEEP_SELECT
 
-		Util_LOAD_SYM txt_walk, arg1w
+		Util_LOAD_SYM txt_interact, arg1w
 		JSR TE_PRINT_TEXT
 
-		lda #interface_mode_walk
-		sta ui_state
-
-		JMP @DONE
+		lda #interface_state_interact
+    JMP @NEW_UI
 
   @HANDLE_KB_ESCAPE:
 
@@ -105,10 +104,11 @@ HANDLE_INPUT_4WAY_MODE:
     JSR UI_DRAW_TIME
 
     JMP @WAITFORINPUT
-
-	@CLEAR_UI:
-
-		JMP @DONE
+    
+  @NEW_UI:
+  		sta ui_state
+      lda #$ff
+      sta ui_prev_state
 
 
   @DONE:

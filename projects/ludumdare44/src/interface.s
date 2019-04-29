@@ -10,10 +10,14 @@
 .include "textengine.inc"
 .include "grfx.inc"
 
+.list on
 .segment "CODE_H"
 
 UI_RESET:
-		lda #interface_mode_4way
+		lda #$ff
+		sta ui_prev_state
+
+		lda #interface_state_4way
 		sta ui_state
 
 		RTS
@@ -60,24 +64,19 @@ UI_DRAW_RIGHT_PANEL:
 		JSR UI_DRAW_TOP_RIGHT_PANEL
 
 		LDA ui_state
-		CMP #interface_mode_4way
+		CMP #interface_state_4way
 		BEQ @PREPARE_4_ARROW
-		
-		CMP #interface_mode_selector
+		CMP #interface_state_selector
 		BEQ @PREPARE_SELECTOR
 
 		RTS		
 	
 	@PREPARE_4_ARROW:
-
 		JSR DRAW_4WAY_ELEMENTS
-
 		RTS
 
 	@PREPARE_SELECTOR:
-
 		JSR DRAW_SELECTOR_ELEMENTS
-	
 		RTS
 
 DRAW_4WAY_ELEMENTS:
@@ -88,31 +87,28 @@ DRAW_4WAY_ELEMENTS:
 	draw_single_largetile #tileid_cmd_interact, #14, #18
 
 	JSR UI_DRAW_INVENTORY
-
 	JSR UI_DRAW_NEARBY
-
 	RTS
 
 DRAW_SELECTOR_ELEMENTS:
 
-	lda ui_selector_state
-	and #selector_state_mask_inv
+	lda ui_selector_filter
+	and #selector_filter_mask_inv
 	beq :+
 	JSR UI_DRAW_INVENTORY
 :
 
-	lda ui_selector_state
-	and #selector_state_mask_nearby
+	lda ui_selector_filter
+	and #selector_filter_mask_nearby
 	beq :+
 	JSR UI_DRAW_NEARBY
 :
 
-	lda ui_selector_state
-	and #selector_state_mask_exits
+	lda ui_selector_filter
+	and #selector_filter_mask_exits
 	beq :+
 	JSR UI_DRAW_EXITS
 :
-
 	RTS
 
 
@@ -370,21 +366,21 @@ UI_CLEAR_RIGHT_PANEL:
 ; blocks while waiting for input		
 UI_CHECK_INPUT:
 
-		JSR UI_DRAW_RIGHT_PANEL
-
 		lda ui_state
-		cmp #interface_mode_4way
+		cmp #interface_state_4way
 		beq @FOURWAY_START
-		cmp #interface_mode_selector
-		beq @SELECTOR
-		cmp #interface_mode_examine
+		cmp #interface_state_examine
 		beq @COMMAND_EXAMINE
-		cmp #interface_mode_interact
-		beq @COMMAND_WALK
-		cmp #interface_mode_talk
-		beq @COMMAND_TALK
-		cmp #interface_mode_walk
+		cmp #interface_state_interact
 		beq @COMMAND_INTERACT
+		cmp #interface_state_interact2
+		beq @COMMAND_INTERACT2
+		cmp #interface_state_talk
+		beq @COMMAND_TALK
+		cmp #interface_state_walk
+		beq @COMMAND_WALK
+		cmp #interface_state_selector
+		beq @COMMAND_SELECTOR
 
 		JMP @DONE
 
@@ -397,6 +393,7 @@ UI_CHECK_INPUT:
 		JMP @DONE
 
 	@COMMAND_INTERACT:
+	@COMMAND_INTERACT2:
 		JSR HANDLE_INPUT_INTERACT
 		JMP @DONE
 
@@ -408,7 +405,7 @@ UI_CHECK_INPUT:
 		JSR HANDLE_INPUT_WALK
 		JMP @DONE
 
-	@SELECTOR:
+	@COMMAND_SELECTOR:
 		JSR HANDLE_INPUT_SELECTOR
 		JMP @DONE
 
@@ -436,8 +433,11 @@ UI_CHECK_INPUT:
 		; 3 = interact mode
 		; 4 = walk mode
 
-	ui_selector_state:
-		.byte $00	; bitflag
+	ui_prev_state:
+		.byte $00 ; used by selector
+
+	ui_selector_filter:
+		.byte $00	; bitflag of what to select
 
 	; number of active inv items
 	ui_selector_active_inv:
@@ -451,12 +451,9 @@ UI_CHECK_INPUT:
 	ui_selector_active_exits:
 		.byte $00
 
-	ui_selector_second_mode:
-		.byte $00
-
-	ui_selector_selected_thing_first:
+	ui_selector_selected_first:
 		.addr $0000
-	ui_selector_selected_thing_second:
+	ui_selector_selected_second:
 		.addr $0000
 
 .segment "RODATA_H"
@@ -475,7 +472,7 @@ UI_CHECK_INPUT:
 
 		txt_examine_what:	.asciiz "What will you examine? [ESC=abort, SPACE=select] "
 
-		txt_interact_what:	.asciiz "What is interacting? [ESC=abort, SPACE=select] "
+		txt_interact_what1:	.asciiz "What is interacting? [ESC=abort, SPACE=select] "
 
 		txt_interact_what2:	.asciiz "And the target? [ESC=abort, SPACE=select] "
 
@@ -483,4 +480,8 @@ UI_CHECK_INPUT:
 		
 		txt_walk_where:	.asciiz "Where are you walking to? [ESC=abort, SPACE=select] "
 
-		txt_debug:				.asciiz "gothere"
+		txt_debug:				.asciiz "gothereA"
+		txt_debug2:				.asciiz "gothereB"
+		txt_debug3:				.asciiz "gothereC"
+		txt_debug4:				.asciiz "gothereD"
+

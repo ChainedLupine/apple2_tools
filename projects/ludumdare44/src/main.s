@@ -11,7 +11,7 @@
 .include "gamestate.inc"
 
 .forceimport HANDLE_INPUT_SELECTOR
-.forceimport SEL_CAN_MOVE_DOWN
+
 .segment "CODE_H"
 
 		ZP_SETUP
