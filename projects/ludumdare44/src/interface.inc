@@ -10,7 +10,7 @@
 .global UI_DRAW_TOP_RIGHT_PANEL
 .global UI_RESET
 
-.global tiles_img_main, tiles_img_aux
+.global tiles_img_main, tiles_img_aux, ui_selector_selected, ui_selector_selected_extra
 
 ;.ifndef INTERFACE_INC_GUARD
 ;.define INTERFACE_INC_GUARD

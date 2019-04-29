@@ -78,9 +78,9 @@ HANDLE_INPUT_SELECTOR:
 
   @HANDLE_KB_SPACE:
     JSR PLAY_BEEP_SELECT
-    ; we are in first state
-    ; write to first slot
+    ; write to first sl
     ;todo
+    JSR SEL_GET_SELECTED_ITEM
 
     lda ui_prev_state
     sta ui_state
@@ -324,15 +324,15 @@ SEL_GET_ACTIVE_AMT_ON_LINE:
     lda temp3
     cmp #1
     bne :+
-    lda ui_selector_active_nearby
+    lda ui_selector_active_nearby_count
     rts
   :
     cmp #2
     bne :+
-    lda ui_selector_active_exits
+    lda ui_selector_active_exits_count
     rts
   :
-    lda ui_selector_active_inv
+    lda ui_selector_active_inv_count
     RTS
 
     ; input: 
@@ -423,3 +423,67 @@ SEL_NEXT_LINE_UP:
     lda #0 ; select inv line
   :
     rts
+
+  ; writes into ui_selector_selected
+.export SEL_GET_SELECTED_ITEM
+SEL_GET_SELECTED_ITEM:
+    lda temp4
+    sec
+    sbc #selector_x_min
+    lsr
+    sta temp4 ; should now be a 0-based index into list
+
+    lda temp3
+    cmp #0
+    bne @try_nearby
+
+    ; we are selecting an inv item
+    lda ui_selector_active_inv_count
+    beq @NO_ITEM
+
+    ldy temp4
+    lda ui_selector_active_inv_l,y
+    sta ui_selector_selected
+    lda ui_selector_active_inv_h,y
+    sta ui_selector_selected+1
+    jmp @DONE
+
+  @try_nearby:
+    lda temp3
+    cmp #1
+    bne @try_exits
+
+    ; we are selecting a nearby item
+    lda ui_selector_active_nearby_count
+    beq @NO_ITEM
+
+    ldy temp4
+    lda ui_selector_active_nearby_l,y
+    sta ui_selector_selected
+    lda ui_selector_active_nearby_h,y
+    sta ui_selector_selected+1
+    jmp @DONE
+
+  @try_exits:
+
+    ; we are selecting an exit
+    lda ui_selector_active_exits_count
+    beq @NO_ITEM
+
+    ldy temp4
+    lda ui_selector_active_exits_l,y
+    sta ui_selector_selected
+    lda ui_selector_active_exits_h,y
+    sta ui_selector_selected+1
+    jmp @DONE
+
+  @NO_ITEM:
+      ; no item!
+      lda #$ff
+      sta ui_selector_selected
+      lda #$ff
+      sta ui_selector_selected+1
+      rts
+
+  @DONE:
+      rts

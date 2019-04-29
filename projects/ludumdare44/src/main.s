@@ -11,6 +11,9 @@
 .include "gamestate.inc"
 
 .forceimport HANDLE_INPUT_SELECTOR
+.forceimport ui_selector_selected, ui_selector_selected_extra
+.forceimport SEL_GET_SELECTED_ITEM
+.forceimport UI_DRAW_INVENTORY
 
 .segment "CODE_H"
 
@@ -97,8 +100,6 @@
 		
 	
 	@MAINLOOP:
-
-		;JSR ROM::GETKEY
 
 		JSR UI_CHECK_INPUT
 

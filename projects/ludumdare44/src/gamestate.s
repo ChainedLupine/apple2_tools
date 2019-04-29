@@ -40,7 +40,6 @@ GS_RESET_INV:
 
 		lda #1
 		sta inventory_slot1+inventory_struct::type
-		lda #0
 		sta inventory_slot2+inventory_struct::type
 		sta inventory_slot3+inventory_struct::type
 		sta inventory_slot4+inventory_struct::type
@@ -89,13 +88,9 @@ GS_ADD_INV_ITEM:
 GS_RESET_NEARBY:
 		lda #0
 		sta nearby_slot1+nearby_struct::type
-		lda #0
 		sta nearby_slot2+nearby_struct::type
-		lda #0
 		sta nearby_slot3+nearby_struct::type
-		lda #0
 		sta nearby_slot4+nearby_struct::type
-		lda #0
 		sta nearby_slot5+nearby_struct::type
 
 		lda #tileid_nearby_test
@@ -117,19 +112,12 @@ GS_RESET_EXITS:
 		sta exit_5+exit_struct::tileid
 
 		lda #2
-		sta exit_1+exit_struct::leadsto
-		sta exit_2+exit_struct::leadsto
-		sta exit_3+exit_struct::leadsto
-		sta exit_4+exit_struct::leadsto
-		lda #0
-		sta exit_5+exit_struct::leadsto
+		sta exit_1+exit_struct::type
+		sta exit_2+exit_struct::type
+		sta exit_3+exit_struct::type
+		sta exit_4+exit_struct::type
+		sta exit_5+exit_struct::type
 
-		lda #2
-		sta exit_1+exit_struct::typereq
-		sta exit_2+exit_struct::typereq
-		sta exit_3+exit_struct::typereq
-		sta exit_4+exit_struct::typereq
-		sta exit_5+exit_struct::typereq
 
 		RTS
 

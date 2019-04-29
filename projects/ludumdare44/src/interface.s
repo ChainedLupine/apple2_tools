@@ -111,7 +111,7 @@ DRAW_SELECTOR_ELEMENTS:
 :
 	RTS
 
-
+.export UI_DRAW_INVENTORY
 UI_DRAW_INVENTORY:
 		ZP_SAVE
 		draw_single_largetile #tileid_invbar, #10, #4
@@ -121,11 +121,8 @@ UI_DRAW_INVENTORY:
 		draw_single_largetile #tileid_invbar+4, #18, #4
 
 		; draw our contents
-
-		ldx #max_inv_items
-
 		lda #00
-		sta ui_selector_active_inv
+		sta ui_selector_active_inv_count
 
 		lda #10
 		sta temp1  ; inv x
@@ -138,46 +135,44 @@ UI_DRAW_INVENTORY:
 		lda #>inventory_start
 		sta temp1w+1
 
+		ldx #max_inv_items
+
 	@LOOP_INV:
-		phx
 		ldy #inventory_struct::type
 		lda (temp1w),y
-		beq @DONT_OWN
+		beq @END_OF_INV
 		; owned item, now draw it
 
 		ldy #inventory_struct::tileid
 		lda (temp1w),y
 		sta temp3
 
+		phx
 		draw_single_largetile temp3, temp1, temp2
 
-		; increate number of active inv items in list
-		inc ui_selector_active_inv
-
-		; now increment x to next slot
-		lda temp1
-		inc
-		inc
-		cmp #20
-		bcc :+
-		lda temp2
-		inc
-		inc
-		sta temp2
-		lda #10
-	:
-		sta temp1
-
-	@DONT_OWN:
-		; don't own item
-		Util_Inc_16_Addr_Struct temp1w, inventory_struct
+		; load x with our current active count as an idx
+		ldx ui_selector_active_inv_count
+		; write to our temp list of items
+		lda temp1w
+		sta ui_selector_active_inv_l,x
+		lda temp1w+1
+		sta ui_selector_active_inv_h,x
 		plx
+
+		; increate number of active inv items in list
+		inc ui_selector_active_inv_count
+
+
+		; now increment cusor x
+		inc temp1
+		inc temp1
+
+		Util_Inc_16_Addr_Struct temp1w, inventory_struct
 		dex
 		; if still items left, draw more
-		beq :+
-		JMP @LOOP_INV
-	:
+		bne @LOOP_INV
 
+	@END_OF_INV:
 		ZP_RESTORE
 		RTS
 
@@ -189,10 +184,8 @@ UI_DRAW_NEARBY:
 		draw_single_largetile #tileid_nearbybar+3, #16, #9
 		draw_single_largetile #tileid_nearbybar+4, #18, #9
 		
-		ldx #max_nearby_items
-
 		lda #00
-		sta ui_selector_active_nearby
+		sta ui_selector_active_nearby_count
 
 		lda #10
 		sta temp1  ; inv x
@@ -205,46 +198,43 @@ UI_DRAW_NEARBY:
 		lda #>nearby_start
 		sta temp1w+1
 
+		ldx #max_nearby_items
+
 	@LOOP_NEARBY:
-		phx
 		ldy #nearby_struct::type
 		lda (temp1w),y
-		beq @NOT_PRESENT
-		; owned item, now draw it
+		beq @END_OF_NEARBY
 
 		ldy #nearby_struct::tileid
 		lda (temp1w),y
 		sta temp3
 
+		phx
 		draw_single_largetile temp3, temp1, temp2
 
+		; load x with our current active count as an idx
+		ldx ui_selector_active_inv_count
+		; write to our temp list of items
+		lda temp1w
+		sta ui_selector_active_nearby_l,x
+		lda temp1w+1
+		sta ui_selector_active_nearby_h,x
+		plx
+
 		; increate number of active nearby items in list
-		inc ui_selector_active_nearby
+		inc ui_selector_active_nearby_count
 
-		; now increment x to next slot
-		lda temp1
-		inc
-		inc
-		cmp #20
-		bcc :+
-		lda temp2
-		inc
-		inc
-		sta temp2
-		lda #10
-	:
-		sta temp1
+		; now increment cursor x
+		inc temp1
+		inc temp1
 
-	@NOT_PRESENT:
 		; nearby item isn't in here
 		Util_Inc_16_Addr_Struct temp1w, nearby_struct
-		plx
 		dex
 		; if still items left, draw more
-		beq :+
-		JMP @LOOP_NEARBY
-	:
+		bne @LOOP_NEARBY
 
+	@END_OF_NEARBY:
 		ZP_RESTORE
 		RTS
 
@@ -256,10 +246,8 @@ UI_DRAW_EXITS:
 		draw_single_largetile #tileid_exitsbar+3, #16, #14
 		draw_single_largetile #tileid_exitsbar+4, #18, #14
 		
-		ldx #max_exits_items
-
 		lda #00
-		sta ui_selector_active_exits
+		sta ui_selector_active_exits_count
 
 		lda #10
 		sta temp1  ; inv x
@@ -272,46 +260,42 @@ UI_DRAW_EXITS:
 		lda #>exit_start
 		sta temp1w+1
 
+		ldx #max_exits_items
+
 	@LOOP_EXITS:
-		phx
-		ldy #exit_struct::leadsto
+		ldy #exit_struct::type
 		lda (temp1w),y
-		beq @NOT_PRESENT
-		; owned item, now draw it
+		beq @END_OF_EXITS
 
 		ldy #exit_struct::tileid
 		lda (temp1w),y
 		sta temp3
 
+		phx
 		draw_single_largetile temp3, temp1, temp2
 
-		; increate number of active exits in list
-		inc ui_selector_active_exits
-
-		; now increment x to next slot
-		lda temp1
-		inc
-		inc
-		cmp #20
-		bcc :+
-		lda temp2
-		inc
-		inc
-		sta temp2
-		lda #10
-	:
-		sta temp1
-
-	@NOT_PRESENT:
-		; nearby item isn't in here
-		Util_Inc_16_Addr_Struct temp1w, exit_struct
+		; load x with our current active count as an idx
+		ldx ui_selector_active_inv_count
+		; write to our temp list of items
+		lda temp1w
+		sta ui_selector_active_exits_l,x
+		lda temp1w+1
+		sta ui_selector_active_exits_h,x
 		plx
+
+		; increate number of active exits in list
+		inc ui_selector_active_exits_count
+
+		; now increment cursor x
+		inc temp1
+		inc temp1
+
+		Util_Inc_16_Addr_Struct temp1w, exit_struct
 		dex
 		; if still items left, draw more
-		beq :+
-		JMP @LOOP_EXITS
-	:
+		bne @LOOP_EXITS
 
+	@END_OF_EXITS:
 		ZP_RESTORE
 		RTS
 
@@ -440,20 +424,56 @@ UI_CHECK_INPUT:
 		.byte $00	; bitflag of what to select
 
 	; number of active inv items
-	ui_selector_active_inv:
+	ui_selector_active_inv_count:
+		.byte $00
+	ui_selector_active_inv_l:
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
+	ui_selector_active_inv_h:
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
 		.byte $00
 
 	; number of active nearbys
-	ui_selector_active_nearby:
+	ui_selector_active_nearby_count:
+		.byte $00
+	ui_selector_active_nearby_l:
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
+	ui_selector_active_nearby_h:
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
 		.byte $00
 
 	; number of active exits
-	ui_selector_active_exits:
+	ui_selector_active_exits_count:
+		.byte $00
+	ui_selector_active_exits_l:
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
+	ui_selector_active_exits_h:
+		.byte $00
+		.byte $00
+		.byte $00
+		.byte $00
 		.byte $00
 
-	ui_selector_selected_first:
+	ui_selector_selected:
 		.addr $0000
-	ui_selector_selected_second:
+	ui_selector_selected_extra:
 		.addr $0000
 
 .segment "RODATA_H"

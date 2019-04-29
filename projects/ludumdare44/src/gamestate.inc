@@ -12,6 +12,8 @@ max_nearby_items = 5
 max_exits_items = 5
 .global exit_start, exit_1, exit_2, exit_3, exit_4, exit_5
 
+; note: TYPEs are UNIQUE IDs to each thing in the game
+
 .struct nearby_struct
   tileid    .byte
   type      .byte ; what kind it is
@@ -20,18 +22,14 @@ max_exits_items = 5
 .struct inventory_struct
   tileid    .byte
 	type 			.byte
-  state     .byte
 .endstruct
 
 .struct exit_struct
   tileid    .byte
-  leadsto   .byte
-  typereq   .byte
+  type      .byte
 .endstruct
 
 .macro clear_inventory addr
-		lda #0
-    sta addr+inventory_struct::state
     lda #0
     sta addr+inventory_struct::type
 .endmacro
@@ -43,7 +41,7 @@ max_exits_items = 5
 
 .macro clear_exit addr
 		lda #0
-    sta addr+exit_struct::leadsto
+    sta addr+exit_struct::type
 .endmacro
 
 .macro build_inventory_item
