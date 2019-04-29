@@ -41,12 +41,6 @@
 .endmacro
 
 .macro Util_Inc_16_Addr_Struct addr, struct
-	.if .blank(amt) 	; increment by 1
-		inc addr
-		bne :+
-		inc addr+1
-	:
-	.else 					 	; increment by amt
 		lda addr
 		clc
 		;.byte $69 
@@ -56,6 +50,15 @@
 		inc addr+1
 	:
 		sta addr
-	.endif
 .endmacro
 
+
+.macro Util_Dec_16_Addr_Struct addr, struct
+		lda addr
+		sec
+		adc #.sizeof(struct)
+		bcs :+
+		dec addr+1
+	:
+		sta addr
+.endmacro

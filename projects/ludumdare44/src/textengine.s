@@ -6,6 +6,18 @@
 
 SPACE = $A0
 
+TE_MOVE_TO_BOTTOM_LINE:
+		JSR TE_CLEAR_VISUAL_CURSOR
+
+		LDA #0
+		STA TLINE_CURSOR_X
+		LDA #23
+		STA TLINE_CURSOR_Y
+
+		JSR TE_SET_VISUAL_CURSOR
+
+		RTS
+
 TE_CLEAR_TEXT:
 		LDA #20		
 	:
@@ -213,6 +225,17 @@ TE_CARRIAGE_RETURN:
 		
 		RTS
 		
+
+TE_CLEAR_VISUAL_CURSOR:
+		lda arg1
+		pha
+		lda #$20
+		sta arg1
+		JSR TE_OUTPUT_CHAR
+		pla
+		sta arg1
+		RTS 
+
 TE_SET_VISUAL_CURSOR:
 		lda arg1
 		pha

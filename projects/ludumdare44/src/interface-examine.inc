@@ -1,3 +1,4 @@
+.export HANDLE_INPUT_EXAMINE
 HANDLE_INPUT_EXAMINE:
 
 		lda ui_prev_state
@@ -20,6 +21,7 @@ HANDLE_INPUT_EXAMINE:
     ; set selector filter (inv, nearby)
     lda #selector_filter_mask_inv
     ora #selector_filter_mask_nearby
+		ora #selector_filter_mask_exits
 		sta ui_selector_filter
 
 		RTS
@@ -27,11 +29,34 @@ HANDLE_INPUT_EXAMINE:
 	@have_our_selection:
 		JSR TE_CLEAR_TEXT
 
-		Util_LOAD_SYM txt_debug, arg1w
-		JSR TE_PRINT_TEXT
+		; check to see if it's a bogus item
+		lda ui_selector_selected+1
+		cmp #$ff
+		beq @NO_VALID_ITEM
+
+		; prepare for ZP
+		lda ui_selector_selected
+		sta temp1w
+		lda ui_selector_selected+1
+		sta temp1w+1
+
+		ldy #inventory_struct::typeid
+		lda (temp1w),y
+		JSR GW_PRINT_DESC_TYPEID
 
 		JSR ROM::GETKEY
 
+		JMP @EXIT
+
+	@NO_VALID_ITEM:
+		JSR PLAY_BEEP_SAD
+
+		Util_LOAD_SYM txt_examine_error, arg1w
+		JSR TE_PRINT_TEXT
+		
+		JSR ROM::GETKEY
+
+	@EXIT:
 		JSR TE_CLEAR_TEXT
 
 		lda #interface_state_4way

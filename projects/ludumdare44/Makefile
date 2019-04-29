@@ -1,6 +1,6 @@
 # be careful, any BINFILE name must be 8 chars max
 BINFILE = EXUBER
-OBJS = main.o tileengine.o file.o grfx.o textengine.o interface.o gamestate.o
+OBJS = main.o tileengine.o file.o grfx.o textengine.o interface.o gamestate.o gameworld.o
 LIBS = apple2rom.o prodos.o
 TARGET_ARCH = apple2enh
 TARGET_ASM_MAP = apple2enh-asm-prodos-gfx.cfg
@@ -62,10 +62,13 @@ obj/textengine.o: src/textengine.s src/zeropage.inc src/textengine.inc
 obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestate.inc $(INCLUDE_PATH)/utils.inc src/interface-4way.inc src/interface-examine.inc src/interface-selector.inc src/interface-rightpanel.inc src/interface-interact.inc src/interface-walk.inc src/interface-talk.inc
 	$(CA65) $(AFLAGS) -l interface.txt $< -o $@
 
-obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc
+obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc src/gameworld.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
-obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc $(INCLUDE_PATH)/utils.inc
+obj/gameworld.o: src/gameworld.s src/zeropage.inc src/gameworld.inc src/gameworld-descs.inc src/gameworld-talks.inc
+	$(CA65) $(AFLAGS) $< -o $@
+
+obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc src/gameworld.inc $(INCLUDE_PATH)/utils.inc
 	$(CA65) $(AFLAGS) $< -o $@
 	
 copyto-disk1: $(DISKIMAGE1)

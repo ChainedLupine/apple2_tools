@@ -9,11 +9,13 @@
 .include "textengine.inc"
 .include "interface.inc"
 .include "gamestate.inc"
+.include "gameworld.inc"
 
 .forceimport HANDLE_INPUT_SELECTOR
 .forceimport ui_selector_selected, ui_selector_selected_extra
+.forceimport GW_PRINT_CURR_ROOM_DESC
+.forceimport HANDLE_INPUT_EXAMINE
 .forceimport SEL_GET_SELECTED_ITEM
-.forceimport UI_DRAW_INVENTORY
 
 .segment "CODE_H"
 

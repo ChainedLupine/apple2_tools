@@ -9,6 +9,7 @@
 .include "file.inc"
 .include "textengine.inc"
 .include "grfx.inc"
+.include "gameworld.inc"
 
 .list on
 .segment "CODE_H"
@@ -80,11 +81,11 @@ UI_DRAW_RIGHT_PANEL:
 		RTS
 
 DRAW_4WAY_ELEMENTS:
-	draw_single_largetile #tileid_cmd_move, #14, #14
-	draw_single_largetile #tileid_cmd_examine, #12, #16
-	draw_single_largetile #tileid_cmd_center, #14, #16
-	draw_single_largetile #tileid_cmd_talk, #16, #16
-	draw_single_largetile #tileid_cmd_interact, #14, #18
+	draw_single_largetile #tileid_cmd_move, #14, #13
+	draw_single_largetile #tileid_cmd_examine, #12, #15
+	draw_single_largetile #tileid_cmd_center, #14, #15
+	draw_single_largetile #tileid_cmd_talk, #16, #15
+	draw_single_largetile #tileid_cmd_interact, #14, #17
 
 	JSR UI_DRAW_INVENTORY
 	JSR UI_DRAW_NEARBY
@@ -135,10 +136,10 @@ UI_DRAW_INVENTORY:
 		lda #>inventory_start
 		sta temp1w+1
 
-		ldx #max_inv_items
+		ldx #0
 
 	@LOOP_INV:
-		ldy #inventory_struct::type
+		ldy #inventory_struct::typeid
 		lda (temp1w),y
 		beq @END_OF_INV
 		; owned item, now draw it
@@ -149,28 +150,26 @@ UI_DRAW_INVENTORY:
 
 		phx
 		draw_single_largetile temp3, temp1, temp2
+		plx
 
-		; load x with our current active count as an idx
-		ldx ui_selector_active_inv_count
 		; write to our temp list of items
 		lda temp1w
 		sta ui_selector_active_inv_l,x
 		lda temp1w+1
 		sta ui_selector_active_inv_h,x
-		plx
 
 		; increate number of active inv items in list
 		inc ui_selector_active_inv_count
-
 
 		; now increment cusor x
 		inc temp1
 		inc temp1
 
 		Util_Inc_16_Addr_Struct temp1w, inventory_struct
-		dex
+		inx
+		cpx #max_exits_items
 		; if still items left, draw more
-		bne @LOOP_INV
+		bcc @LOOP_INV
 
 	@END_OF_INV:
 		ZP_RESTORE
@@ -198,10 +197,10 @@ UI_DRAW_NEARBY:
 		lda #>nearby_start
 		sta temp1w+1
 
-		ldx #max_nearby_items
+		ldx #0
 
 	@LOOP_NEARBY:
-		ldy #nearby_struct::type
+		ldy #nearby_struct::typeid
 		lda (temp1w),y
 		beq @END_OF_NEARBY
 
@@ -211,15 +210,13 @@ UI_DRAW_NEARBY:
 
 		phx
 		draw_single_largetile temp3, temp1, temp2
+		plx
 
-		; load x with our current active count as an idx
-		ldx ui_selector_active_inv_count
 		; write to our temp list of items
 		lda temp1w
 		sta ui_selector_active_nearby_l,x
 		lda temp1w+1
 		sta ui_selector_active_nearby_h,x
-		plx
 
 		; increate number of active nearby items in list
 		inc ui_selector_active_nearby_count
@@ -230,9 +227,10 @@ UI_DRAW_NEARBY:
 
 		; nearby item isn't in here
 		Util_Inc_16_Addr_Struct temp1w, nearby_struct
-		dex
+		inx
+		cpx #max_nearby_items
 		; if still items left, draw more
-		bne @LOOP_NEARBY
+		bcc @LOOP_NEARBY
 
 	@END_OF_NEARBY:
 		ZP_RESTORE
@@ -260,10 +258,10 @@ UI_DRAW_EXITS:
 		lda #>exit_start
 		sta temp1w+1
 
-		ldx #max_exits_items
+		ldx #0
 
 	@LOOP_EXITS:
-		ldy #exit_struct::type
+		ldy #exit_struct::typeid
 		lda (temp1w),y
 		beq @END_OF_EXITS
 
@@ -273,15 +271,13 @@ UI_DRAW_EXITS:
 
 		phx
 		draw_single_largetile temp3, temp1, temp2
+		plx
 
-		; load x with our current active count as an idx
-		ldx ui_selector_active_inv_count
 		; write to our temp list of items
 		lda temp1w
 		sta ui_selector_active_exits_l,x
 		lda temp1w+1
 		sta ui_selector_active_exits_h,x
-		plx
 
 		; increate number of active exits in list
 		inc ui_selector_active_exits_count
@@ -291,9 +287,10 @@ UI_DRAW_EXITS:
 		inc temp1
 
 		Util_Inc_16_Addr_Struct temp1w, exit_struct
-		dex
+		inx
+		cpx #max_exits_items
 		; if still items left, draw more
-		bne @LOOP_EXITS
+		bcc @LOOP_EXITS
 
 	@END_OF_EXITS:
 		ZP_RESTORE
@@ -480,25 +477,29 @@ UI_CHECK_INPUT:
 
 		tiles_filename:		Util_LSTR "INGAME.DHGR"
 
-		txt_enter_cmd:		.asciiz "What shall you do? [ARROW KEYS=select]"
+		txt_enter_cmd:		.asciiz "What shall I do? [ARROW KEYS=select] "
 
 		txt_examine:			.asciiz "Examine..."
 
 		txt_interact:			.asciiz "Interact..."
 
-		txt_talk:			.asciiz "Talk..."
+		txt_talk:					.asciiz "Talk..."
 
-		txt_walk:			.asciiz "Walk to..."
+		txt_walk:					.asciiz "Walk to..."
 
-		txt_examine_what:	.asciiz "What will you examine? [ESC=abort, SPACE=select] "
+		txt_examine_what:			.asciiz "What will I examine? [ESC=abort, SPACE=select] "
 
-		txt_interact_what1:	.asciiz "What is interacting? [ESC=abort, SPACE=select] "
+		txt_examine_error:		.asciiz "Oh, I don't see that here... "
 
-		txt_interact_what2:	.asciiz "And the target? [ESC=abort, SPACE=select] "
+		txt_interact_what1:		.asciiz "What is interacting? [ESC=abort, SPACE=select] "
 
-		txt_talk_what:	.asciiz "Who or what are you talking to? [ESC=abort, SPACE=select] "
+		txt_interact_what2:		.asciiz "And the target? [ESC=abort, SPACE=select] "
+
+		txt_talk_what:				.asciiz "Who or what am I talking to? [ESC=abort, SPACE=select] "
+
+		txt_talk_error:				.asciiz "Strange, who am I trying to talk to? "
 		
-		txt_walk_where:	.asciiz "Where are you walking to? [ESC=abort, SPACE=select] "
+		txt_walk_where:				.asciiz "Where are am I walking to? [ESC=abort, SPACE=select] "
 
 		txt_debug:				.asciiz "gothereA"
 		txt_debug2:				.asciiz "gothereB"

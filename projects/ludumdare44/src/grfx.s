@@ -41,6 +41,24 @@ PLAY_ERROR_BEEP:
 
 		RTS
 
+PLAY_BEEP_SAD:
+		ZP_SAVE
+		
+		lda #$e0
+		sta arg1
+		Util_LOAD_SYM $0040, arg1w
+		JSR PLAY_NOTE
+		
+		lda #$e7
+		sta arg1
+		Util_LOAD_SYM $0070, arg1w
+		JSR PLAY_NOTE
+
+		ZP_RESTORE
+
+		RTS
+
+
 PLAY_BEEP_DESELECT:
 		ZP_SAVE
 		
@@ -79,25 +97,23 @@ PLAY_NOTE:
 	; arg1 = frequency
 	; arg1w = duration	
   CLC
-  LDY arg1w    ;duration_lo
-  INC arg1w+1 ;duration_hi
-  ;Starting to vibe ;)
-  ;These loop should fit in one page to respect the timings
-@loop_half_period:
-  LDA $C030             ;4 cycles //SPEAKER
-  LDX arg1 ;half_period       ;3 cycles
-@loop_nops:
-  NOP                   ;2 cycles
-  NOP                   ;2 cycles
-  NOP                   ;2 cycles
-  NOP                   ;2 cycles
-  DEX                   ;2 cycles
-  BNE @loop_nops         ;3 cycles
-  ;Testing duration loop
-  DEY                   ;2 cycles
-  BNE @loop_half_period  ;3 cycles
-  DEC arg1w+1 ;duration_hi       ;5 cycles
-  BNE @loop_half_period  ;3 cycles		
+  LDY arg1w    	;duration
+  INC arg1w+1 	;duration
+@loop_freq:
+  LDA $C030
+  LDX arg1
+@idleloop:
+  NOP
+  NOP
+  NOP
+  NOP
+  DEX
+  BNE @idleloop
+  
+  DEY
+  BNE @loop_freq
+  DEC arg1w+1
+  BNE @loop_freq
 
 	RTS
 

@@ -40,6 +40,13 @@ HANDLE_INPUT_INTERACT:
     lda #selector_filter_mask_nearby
 		sta ui_selector_filter
 
+		; save what we selected
+		lda ui_selector_selected
+		sta ui_selector_selected_extra
+		
+		lda ui_selector_selected+1
+		sta ui_selector_selected_extra+1
+
     RTS
 
 	@have_our_second_selection:

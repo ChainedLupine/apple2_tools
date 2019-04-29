@@ -41,17 +41,7 @@ tileid_invbar					= (largetile_width * 8) + 5
 tileid_nearbybar			= (largetile_width * 7) + 5
 tileid_exitsbar  			= (largetile_width * 6) + 5
 
-tileid_inv_me					= (largetile_width * 1) + 0
-tileid_inv_ramen			= (largetile_width * 1) + 1
-
-tileid_nearby_test		= (largetile_width * 2) + 0
-
 tileid_select_arrow   = (largetile_width * 0) + 1
-
-tileid_exit_north     = (largetile_width * 3) + 0
-tileid_exit_west      = (largetile_width * 3) + 1
-tileid_exit_east      = (largetile_width * 3) + 2
-tileid_exit_south     = (largetile_width * 3) + 3
 
 kb_left_arrow     = $08
 kb_right_arrow    = $15

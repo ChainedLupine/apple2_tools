@@ -2,7 +2,13 @@
 HANDLE_INPUT_4WAY_MODE:
     ; does not clear text, cuz previous interaction might be displaying something
 
+		JSR UI_CLEAR_RIGHT_PANEL
+
     JSR UI_DRAW_RIGHT_PANEL
+
+		JSR GW_PRINT_CURR_ROOM_DESC
+
+		JSR TE_MOVE_TO_BOTTOM_LINE
 
 		Util_LOAD_SYM txt_enter_cmd, arg1w
 		JSR TE_PRINT_TEXT
