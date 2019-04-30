@@ -69,7 +69,7 @@ obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestat
 obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc src/gameworld.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
-obj/gameworld.o: src/gameworld.s src/zeropage.inc src/gameworld.inc src/gameworld-descs.inc src/gameworld-talks.inc src/gameworld-interacts.inc src/gameworld-rooms.inc
+obj/gameworld.o: src/gameworld.s src/zeropage.inc src/gameworld.inc src/gameworld-descs.inc src/gameworld-talks.inc src/gameworld-interacts.inc src/gameworld-rooms.inc src/gameworld-exits.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
 obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc src/gameworld.inc $(INCLUDE_PATH)/utils.inc

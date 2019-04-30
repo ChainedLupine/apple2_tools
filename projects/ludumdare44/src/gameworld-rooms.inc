@@ -6,12 +6,7 @@ ROOM_APARTMENT:
     ; apartment exits
     lda #typeid_exit_apt_street
     ldx #tileid_exit_north
-    ldy #0 ; no item required
-    JSR GS_ADD_EXIT
-
-    lda #typeid_exit_apt_street
-    ldx #tileid_exit_north
-    ldy #typeid_inv_ramen ; no item required
+    ldy #typeid_inv_ramen
     JSR GS_ADD_EXIT
 
     lda #typeid_nearby_refrig
@@ -28,12 +23,20 @@ ROOM_APARTMENT:
 
     rts
 
+ROOM_STREET:
+    lda #typeid_exit_street_apt
+    ldx #tileid_exit_south
+    ldy #0 ; no item required
+    JSR GS_ADD_EXIT
+
+    rts
 
 .segment "RODATA_H"
 
   room_setup_jumps:
     ; goes by typeid
     .addr ROOM_APARTMENT-1
+    .addr ROOM_STREET-1
 
   filename_room1:
     Util_LSTR "ROOM1.DHGR"

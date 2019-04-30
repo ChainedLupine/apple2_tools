@@ -26,11 +26,39 @@ HANDLE_INPUT_WALK:
 	@have_our_selection:		
 		JSR TE_CLEAR_TEXT
 
-		Util_LOAD_SYM txt_debug3, arg1w
-		JSR TE_PRINT_TEXT
+		; check to see if it's a bogus item
+		lda ui_selector_selected+1
+		cmp #$ff
+		beq @NO_VALID_ITEM
 
+		; prepare for ZP
+		lda ui_selector_selected
+		sta temp1w
+		lda ui_selector_selected+1
+		sta temp1w+1
+
+		ldy #exit_struct::typeid
+		lda (temp1w),y
+		JSR GW_HANDLE_WALKING
+		bcs :+
+			Util_LOAD_SYM txt_walk_locked, arg1w
+			JSR TE_PRINT_TEXT
+
+			JSR ROM::GETKEY
+		: ; success
+
+
+		JMP @EXIT
+
+	@NO_VALID_ITEM:
+		JSR PLAY_BEEP_SAD
+
+		Util_LOAD_SYM txt_walk_error, arg1w
+		JSR TE_PRINT_TEXT
+		
 		JSR ROM::GETKEY
 
+	@EXIT:
 		JSR TE_CLEAR_TEXT
 
 		lda #interface_state_4way
@@ -40,4 +68,3 @@ HANDLE_INPUT_WALK:
 		sta ui_prev_state
 
     RTS
-

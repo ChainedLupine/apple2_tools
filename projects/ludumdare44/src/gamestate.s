@@ -252,10 +252,6 @@ GS_ADD_EXIT:
 		lda arg2
 		sta (temp1w),y
 
-		ldy #exit_struct::required
-		lda arg3
-		sta (temp1w),y
-
 		JMP @DONE
 
 	@OCCUPIED:

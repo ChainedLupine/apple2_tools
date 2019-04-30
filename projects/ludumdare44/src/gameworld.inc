@@ -3,6 +3,7 @@
 .global GW_POPULATE_ROOM, GW_PRINT_CURR_ROOM_DESC
 .global GW_PRINT_DESC_TYPEID
 .global GW_HANDLE_TALKING
+.global GW_HANDLE_WALKING
 .global GW_HANDLE_INTERACTION
 .global GW_RETURN_TO_APT
 .global GW_GET_ROOM_FILENAME_AND_PANEL
@@ -16,6 +17,12 @@
 .struct room_image_table_struct
   filenametxt .addr
   panel       .byte
+  padding     .byte
+.endstruct
+
+.struct exit_jump_struct
+  lockhandler .addr
+  desttypeid  .byte
   padding     .byte
 .endstruct
 

@@ -492,6 +492,11 @@ UI_CHECK_INPUT:
 		
 		txt_walk_where:				.asciiz "Where are am I walking to? [ESC=abort, SPACE=select] "
 
+		txt_walk_error:				.asciiz "I'm not sure where I am supposed to go. "
+
+		txt_walk_locked:			.asciiz "I'm missing something.  A key?  Something else? "
+
+
 		txt_debug:				.asciiz "gothereA"
 		txt_debug2:				.asciiz "gothereB"
 		txt_debug3:				.asciiz "gothereC"

@@ -38,7 +38,6 @@ max_exits_items = 5
 .struct exit_struct
   tileid      .byte
   typeid      .byte
-  required    .byte  ; typeid required to use this exit
 .endstruct
 
 .macro clear_inventory addr

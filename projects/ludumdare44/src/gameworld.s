@@ -201,6 +201,7 @@ GW_HANDLE_TALKING:
 .include "gameworld-descs.inc"
 .include "gameworld-talks.inc"
 .include "gameworld-rooms.inc"
+.include "gameworld-exits.inc"
 
 .segment "CODE_H"
 
@@ -237,3 +238,39 @@ GW_GET_ROOM_FILENAME_AND_PANEL:
 
     RTS
 
+  ; a = is exit typeid
+GW_HANDLE_WALKING:
+    sta temp1
+    JSR @JMP_EXIT_HANDLER
+
+    bcs :+
+      clc
+      rts
+  : ; success
+  
+    ; now load room typeid and go to it
+    lda temp1
+    sec
+    sbc #typeid_exits_start
+    asl
+    asl
+    tax
+    lda exit_jumps+exit_jump_struct::desttypeid,x
+    sta curr_room_typeid
+    
+    JSR GW_POPULATE_ROOM
+
+    sec
+    rts
+
+@JMP_EXIT_HANDLER:
+    sec
+    sbc #typeid_exits_start
+    asl
+    asl
+    tax
+    lda exit_jumps+1, x
+    pha
+    lda exit_jumps, x
+    pha
+    rts ; now go to our real exit routine
