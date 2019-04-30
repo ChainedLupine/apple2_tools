@@ -23,39 +23,7 @@ UI_RESET:
 
 		RTS
 
-
-UI_LOAD_TILES:
-		; -- load our tile image ------------------------------
-		
-		Util_LOAD_SYM tiles_filename, arg1w
-
-		Util_LOAD_SYM tiles_img_aux, arg2w
-		Util_LOAD_SYM tiles_img_main, arg3w		
-		
-		JSR FILE_LOAD_DHGR_TO_RAM		
-		
-		RTS
-
-UI_COPY_TILES_TO_PAGE1:
-		CLI		
-		LDA ROM::SW_HIRES 		; need HIRES before we can use the MAIN/AUX writes below
-		STA ROM::SW_80STOREON	; enable PAGE1/2 to control MAIN/AUX banks for $2000-$3FFF
-		STA ROM::SW_PAGE1		; MAIN bank
-		; now move load_buffer_main to $2000 in MAIN
-		ROM_MEMCOPY ROM::MEM_HGR_PAGE1, tiles_img_main, $2000
-		STA ROM::SW_PAGE2		; AUX bank
-		; now AUXMOVE load_buffer_aux to $2000 in AUX
-		ROM_MEMCOPY ROM::MEM_HGR_PAGE1, tiles_img_aux, $2000
-		
-		STA ROM::SW_PAGE1		; MAIN bank
-		STA ROM::SW_80STOREOFF
-		SEI
-
-		rts
-
-
 UI_DRAW_TOP_RIGHT_PANEL:
-		; draw health icon
 		JSR UI_DRAW_HEALTH		
 		JSR UI_DRAW_TIME
 
@@ -304,8 +272,8 @@ UI_CLEAR_TOP_PANEL:
 		ldx #0 ; 4 smalltiles high
 
 	@CLEAR_LINE:
-		phx
 		stx temp1
+		phx
 		draw_single_largetile #tileid_blank, #10, temp1
 		draw_single_largetile #tileid_blank, #12, temp1
 		draw_single_largetile #tileid_blank, #14, temp1
@@ -317,11 +285,9 @@ UI_CLEAR_TOP_PANEL:
 		inx
 		cpx #4
 		bcc @CLEAR_LINE
-
 		RTS
 
 UI_CLEAR_RIGHT_PANEL:
-
 		draw_tile_prepare
 
 		ldx #16 ; 14 smalltiles high
@@ -343,6 +309,34 @@ UI_CLEAR_RIGHT_PANEL:
 		dex
 		bne @CLEAR_LINE
 		RTS
+
+UI_CHECK_ROOM_TRANSITION:
+		; check for room transition
+		lda curr_room_flags
+		beq :+
+			; room needs redrawing/loading
+
+			JSR UI_SHOW_DISK_LOAD
+			
+			JSR GRFX_LOAD_ROOM_IMAGE
+			; gets arg1 from previous load
+			JSR GRFX_SHOW_ROOM_PANEL
+
+			; now reload our tiles image
+			JSR GRFX_LOAD_TILES_IMAGE
+			
+			; all done with disk access
+			JSR UI_CLEAR_DISK_LOAD
+
+			JSR UI_CLEAR_TOP_PANEL
+			JSR UI_DRAW_TOP_RIGHT_PANEL
+
+			lda #0
+			sta curr_room_flags
+		:
+
+		rts
+
 
 ; blocks while waiting for input		
 UI_CHECK_INPUT:
@@ -403,9 +397,6 @@ UI_CHECK_INPUT:
 
 .segment "DATA_H"
 
-	tiles_img_main: .res $2000, $00   ; 8192 bytes
-	tiles_img_aux: .res $2000, $00   ; 8192 bytes
-	
 	ui_state:
 		.byte $00  
 		; 0 = 4-arrow mode
@@ -475,8 +466,6 @@ UI_CHECK_INPUT:
 
 .segment "RODATA_H"
 
-		tiles_filename:		Util_LSTR "INGAME.DHGR"
-
 		txt_enter_cmd:		.asciiz "What shall I do? [ARROW KEYS=select] "
 
 		txt_examine:			.asciiz "Examine..."
@@ -487,13 +476,15 @@ UI_CHECK_INPUT:
 
 		txt_walk:					.asciiz "Walk to..."
 
-		txt_examine_what:			.asciiz "What will I examine? [ESC=abort, SPACE=select] "
+		txt_examine_what:			.asciiz "What am I examining? [ESC=abort, SPACE=select] "
 
 		txt_examine_error:		.asciiz "Oh, I don't see that here... "
 
-		txt_interact_what1:		.asciiz "What is interacting? [ESC=abort, SPACE=select] "
+		txt_interact_what1:		.asciiz "What am I using? [ESC=abort, SPACE=select] "
 
 		txt_interact_what2:		.asciiz "And the target? [ESC=abort, SPACE=select] "
+
+		txt_interact_error:		.asciiz "That isn't possible, sorry. "
 
 		txt_talk_what:				.asciiz "Who or what am I talking to? [ESC=abort, SPACE=select] "
 

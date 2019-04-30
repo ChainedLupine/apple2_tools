@@ -55,7 +55,7 @@ GS_REMOVE_TIME:
 	:
 		sta state_time
 
-		JSR UI_DRAW_TIME
+		;JSR UI_DRAW_TIME
 		RTS
 
 		; arg1 = inv typeidid to add
@@ -179,16 +179,58 @@ GS_REMOVE_INV_ITEM:
 		sec 
 		RTS
 
-		; a = exit typeidid to add
+		; arg1 = typeid to look for
+		; return: carry on found, clear on not found
+GS_CHECK_INV_PRESENT:
+		ZP_SAVE
+		lda #<inventory_start
+		sta temp1w 
+		lda #>inventory_start
+		sta temp1w+1
+
+		ldx #0
+	@LOOP_INV:
+		ldy #inventory_struct::typeid
+		lda (temp1w),y
+		cmp arg1
+		bne @NOT_FOUND
+		
+		; we found item
+		JMP @FOUND
+
+	@NOT_FOUND:
+		; move on to next item
+		Util_Inc_16_Addr_Struct temp1w, inventory_struct
+		inx
+		cpx #max_inv_items
+		bcc @LOOP_INV
+
+	@RANOUT:
+		ZP_RESTORE
+		clc ; clear carry, no item
+		rts
+
+	@FOUND:
+		ZP_RESTORE
+		sec 
+		RTS
+
+
+
+		; a = exit typeid to add
 		; x = exit tileid
+		; y = lock typeid required
 GS_ADD_EXIT:
 		phx
+		phy
 		pha
 		ZP_SAVE
 		pla
+		ply
 		plx
 		sta arg1
 		stx arg2
+		sty arg3
 
 		lda #<exit_start
 		sta temp1w 
@@ -208,6 +250,10 @@ GS_ADD_EXIT:
 
 		ldy #exit_struct::tileid
 		lda arg2
+		sta (temp1w),y
+
+		ldy #exit_struct::required
+		lda arg3
 		sta (temp1w),y
 
 		JMP @DONE
@@ -279,10 +325,10 @@ GS_RESET_INV:
 		lda #tileid_inv_me
 		sta inventory_slot1+inventory_struct::tileid
 
-		lda #typeid_inv_ramen
-		sta inventory_slot2+inventory_struct::typeid
-		lda #tileid_inv_ramen
-		sta inventory_slot2+inventory_struct::tileid
+		;lda #typeid_inv_ramen
+		;sta inventory_slot2+inventory_struct::typeid
+		;lda #tileid_inv_ramen
+		;sta inventory_slot2+inventory_struct::tileid
 
 		;lda #typeid_inv_me
 		;sta arg1
@@ -325,6 +371,19 @@ GS_RESET_EXITS:
 
 		RTS
 
+		; mask in arg1
+GS_ONE_SHOT_SANITY_DEDUCT:
+    lda one_shot_sanity_sinks
+    and arg1
+    bne :+
+    lda one_shot_sanity_sinks
+    ora arg1
+    sta one_shot_sanity_sinks
+    JSR GS_REMOVE_SANITY
+  :
+		RTS
+
+
 .segment "DATA_H"
 
 	state_health:
@@ -336,10 +395,10 @@ GS_RESET_EXITS:
   curr_room_typeid:
 		.byte $00
 
-	curr_room_desc_txt:
-		.addr $0000
-
 	one_shot_sanity_sinks:
+		.byte $00
+
+	curr_room_flags:
 		.byte $00
 
 	; max 5 inventory items

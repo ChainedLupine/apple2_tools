@@ -37,7 +37,8 @@ HANDLE_INPUT_INTERACT:
 		lda #interface_state_interact2
 		sta ui_prev_state
 
-    lda #selector_filter_mask_nearby
+    lda #selector_filter_mask_inv
+    ora #selector_filter_mask_nearby
 		sta ui_selector_filter
 
 		; save what we selected
@@ -52,9 +53,45 @@ HANDLE_INPUT_INTERACT:
 	@have_our_second_selection:
 		JSR TE_CLEAR_TEXT
 
-		Util_LOAD_SYM txt_debug2, arg1w
-		JSR TE_PRINT_TEXT
+		; check to see if second item is bogus
+		lda ui_selector_selected_extra+1
+		cmp #$ff
+		beq @NO_VALID_ITEM
 
+		; selected = second item
+		lda ui_selector_selected
+		sta temp1w
+		lda ui_selector_selected+1
+		sta temp1w+1
+
+		; load dst into x
+		ldy #inventory_struct::typeid
+		lda (temp1w),y
+		tax
+
+		; where extra = first item
+		lda ui_selector_selected_extra
+		sta temp1w
+		lda ui_selector_selected_extra+1
+		sta temp1w+1
+
+		; load source into a
+		ldy #inventory_struct::typeid
+		lda (temp1w),y
+
+		JSR GW_HANDLE_INTERACTION
+		; carry returns success
+		bcc :+
+			JMP @EXIT
+		:
+
+	@NO_VALID_ITEM:
+		JSR PLAY_BEEP_SAD
+
+		Util_LOAD_SYM txt_interact_error, arg1w
+		JSR TE_PRINT_TEXT
+		
+	@EXIT:
 		JSR ROM::GETKEY
 
 		JSR TE_CLEAR_TEXT

@@ -32,7 +32,7 @@
 	.else 					 	; increment by amt
 		lda addr
 		clc
-		adc #amt
+		adc amt
 		bcc :+
 		sta addr
 		inc addr+1

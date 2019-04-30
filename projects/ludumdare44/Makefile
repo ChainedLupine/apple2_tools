@@ -14,7 +14,7 @@ DISKVOLUME1 = EXUBER1
 DISKIMAGE2 = EXUBERLD44-D2.PO
 DISKVOLUME2 = EXUBER2
 
-ASSETS_DISK1 = assets/ld44intro.dhgr assets/titlescr.dhgr assets/ingame.dhgr
+ASSETS_DISK1 = assets/ld44intro.dhgr assets/titlescr.dhgr assets/ingame.dhgr assets/room1.dhgr
 ASSETS_DISK2 = assets/ingame.dhgr
 
 include ../../tools/template/binasm.mk
@@ -28,6 +28,7 @@ $(DISKIMAGE1): $(BINFILE_FULL) $(ASSETS_DISK1)
 	$(AC) -p $(DISKIMAGE1) ld44intro.dhgr bin 0x0000 <assets/ld44intro.dhgr
 	$(AC) -p $(DISKIMAGE1) titlescr.dhgr bin 0x0000 <assets/titlescr.dhgr
 	$(AC) -p $(DISKIMAGE1) ingame.dhgr bin 0x0000 <assets/ingame.dhgr
+	$(AC) -p $(DISKIMAGE1) room1.dhgr bin 0x0000 <assets/room1.dhgr
 	$(MAKE) copyto-disk1
 
 $(DISKIMAGE2): $(ASSETS_DISK2)
@@ -42,6 +43,9 @@ assets/titlescr.dhgr: assets/titlescr.png
 	$(PALETTEDHGR) $<
 	
 assets/ingame.dhgr: assets/ingame.png
+	$(PALETTEDHGR) $<
+
+assets/room1.dhgr: assets/room1.png
 	$(PALETTEDHGR) $<
 
 src/tables.inc: utils/buildtables.py
@@ -65,7 +69,7 @@ obj/interface.o: src/interface.s src/zeropage.inc src/interface.inc src/gamestat
 obj/gamestate.o: src/gamestate.s src/zeropage.inc src/gamestate.inc src/gameworld.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
-obj/gameworld.o: src/gameworld.s src/zeropage.inc src/gameworld.inc src/gameworld-descs.inc src/gameworld-talks.inc
+obj/gameworld.o: src/gameworld.s src/zeropage.inc src/gameworld.inc src/gameworld-descs.inc src/gameworld-talks.inc src/gameworld-interacts.inc src/gameworld-rooms.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
 obj/main.o: src/main.s src/tables.inc src/zeropage.inc  src/tileengine.inc src/file.inc src/titlescreen.inc src/textengine.inc src/interface.inc src/gamestate.inc src/gameworld.inc $(INCLUDE_PATH)/utils.inc

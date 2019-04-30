@@ -2,12 +2,15 @@
 
 .global state_health, state_time
 .global GS_RESET, GS_RESET_NEARBY, GS_RESET_EXITS
-.global GS_ADD_INV_ITEM, GS_REMOVE_INV_ITEM, GS_ADD_EXIT, GS_ADD_NEARBY
+.global GS_ADD_INV_ITEM, GS_REMOVE_INV_ITEM, GS_CHECK_INV_PRESENT
+.global GS_ADD_EXIT, GS_ADD_NEARBY
 
-.global GS_ADD_SANITY, GS_REMOVE_SANITY
+.global GS_ADD_SANITY, GS_REMOVE_SANITY, GS_ONE_SHOT_SANITY_DEDUCT
 .global GS_REMOVE_TIME
 
-.global one_shot_sanity_sinks
+.global one_shot_sanity_sinks, curr_room_flags
+
+oss_mask_doing_something_stupid       = $01
 
 max_inv_items = 5
 .global inventory_start, inventory_slot1, inventory_slot2, inventory_slot3, inventory_slot4, inventory_slot5
@@ -35,6 +38,7 @@ max_exits_items = 5
 .struct exit_struct
   tileid      .byte
   typeid      .byte
+  required    .byte  ; typeid required to use this exit
 .endstruct
 
 .macro clear_inventory addr
