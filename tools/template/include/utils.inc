@@ -34,9 +34,9 @@
 		clc
 		adc amt
 		bcc :+
-		sta addr
 		inc addr+1
 	:
+		sta addr
 	.endif
 .endmacro
 

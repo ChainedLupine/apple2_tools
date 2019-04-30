@@ -30,7 +30,7 @@
 		JSR ROM::GFX_MODE_DHGR
 		JSR ROM::GFX_DHGR_PAGE1
 		
-		JMP SKIP_LOGO
+		;JMP SKIP_LOGO
 		
 		.include "titlescreen.inc"
 

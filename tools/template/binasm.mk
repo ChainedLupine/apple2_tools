@@ -32,7 +32,7 @@ BINFILE_FULL = $(BINFILE).bin
 $(BINFILE_FULL): $(OBJS_PATH)
 	$(LD65) $(LFLAGS) $(OBJS_PATH) -o $(BINFILE_FULL)
 
-$(OBJ_PATH)/apple2rom.o: $(LIBAPPLE_PATH)/apple2rom.s $(INCLUDE_PATH)/apple2rom.inc
+$(OBJ_PATH)/apple2rom.o: $(LIBAPPLE_PATH)/apple2rom.s $(INCLUDE_PATH)/apple2rom.inc $(INCLUDE_PATH)/utils.inc
 	$(CA65) $(AFLAGS) $< -o $@
 
 $(OBJ_PATH)/prodos.o: $(LIBAPPLE_PATH)/prodos.s $(INCLUDE_PATH)/prodos.inc

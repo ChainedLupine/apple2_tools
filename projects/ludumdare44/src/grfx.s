@@ -58,7 +58,7 @@ GRFX_LOAD_TILES_IMAGE:
 GRFX_LOAD_ROOM_IMAGE:
 
 		; get filename into arg1w and panel into arg1
-		JSR GW_GET_ROOM_FILENAME_AND_PANEL
+		JSR GW_GET_ROOM_FILENAME_AND_PANEL		
 
 		Util_LOAD_SYM tiles_img_aux, arg2w
 		Util_LOAD_SYM tiles_img_main, arg3w		

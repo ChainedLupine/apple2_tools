@@ -47,7 +47,6 @@ HANDLE_INPUT_WALK:
 			JSR ROM::GETKEY
 		: ; success
 
-
 		JMP @EXIT
 
 	@NO_VALID_ITEM:
