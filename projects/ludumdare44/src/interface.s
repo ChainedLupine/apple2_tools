@@ -314,7 +314,6 @@ UI_CHECK_ROOM_TRANSITION:
 		; check for room transition
 		lda curr_room_flags
 		beq :+
-			JSR PLAY_ERROR_BEEP
 			; room needs redrawing/loading
 			JSR UI_SHOW_DISK_LOAD
 			
