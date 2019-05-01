@@ -22,13 +22,13 @@ for y in range(0, 192):
 	str = "{0:04x}".format(addr)
 	print("\t.byte ${0} ; {1}".format(str[:2], y))
 	
-print("")	
-print("DATA_Y_ADDR_LOOKUP_L:")
-for y in range(0, 192):
-	int_y = int(y)
-	addr = (int(int_y/64) | int(0)) * 0x28 + (int(int_y%8) | int(0)) * 0x400 + (int(int_y/8) & int(7)) * 0x80
-	str = "{0:04x}".format(addr)
-	print("\t.byte ${0} ; {1}".format(str[2:], y))
+#print("")	
+#print("DATA_Y_ADDR_LOOKUP_L:")
+#for y in range(0, 192):
+#	int_y = int(y)
+#	addr = (int(int_y/64) | int(0)) * 0x28 + (int(int_y%8) | int(0)) * 0x400 + (int(int_y/8) & int(7)) * 0x80
+#	str = "{0:04x}".format(addr)
+#	print("\t.byte ${0} ; {1}".format(str[2:], y))
 
 print("")	
 print("DATA_Y_ADDR_LOOKUP_H:")

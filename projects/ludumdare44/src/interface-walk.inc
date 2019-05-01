@@ -41,10 +41,11 @@ HANDLE_INPUT_WALK:
 		lda (temp1w),y
 		JSR GW_HANDLE_WALKING
 		bcs :+
+			JSR PLAY_BEEP_SAD
 			Util_LOAD_SYM txt_walk_locked, arg1w
 			JSR TE_PRINT_TEXT
 
-			JSR ROM::GETKEY
+			JSR UI_WAIT_FOR_KEY
 		: ; success
 
 		JMP @EXIT
@@ -55,7 +56,7 @@ HANDLE_INPUT_WALK:
 		Util_LOAD_SYM txt_walk_error, arg1w
 		JSR TE_PRINT_TEXT
 		
-		JSR ROM::GETKEY
+		JSR UI_WAIT_FOR_KEY
 
 	@EXIT:
 		JSR TE_CLEAR_TEXT

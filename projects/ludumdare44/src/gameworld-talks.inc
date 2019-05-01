@@ -9,7 +9,7 @@ TALK_NOTHING:
     PRINTR txt_talk_nothing
     RTS
 
-TALK_FRIDGE:
+TALK_CRAZY:
     lda #oss_mask_doing_something_stupid
     sta arg1
     JSR GS_ONE_SHOT_SANITY_DEDUCT
@@ -38,8 +38,9 @@ TALK_TESTPERSON:
 .segment "RODATA_H"
 
   talk_nearby_jumps:
-    .addr TALK_FRIDGE-1           ; refrig
+    .addr TALK_CRAZY-1            ; refrig
     .addr TALK_TESTPERSON-1       ; test person
+    .addr TALK_CRAZY-1            ; bed
 
 
   ; talk texts

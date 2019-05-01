@@ -59,7 +59,8 @@ TILEENGINE_RENDER_LARGE_TILE:
 		clc
 		ADC temp1	; y_offset in tiles
 		TAY
-		LDA DATA_Y_ADDR_LOOKUP_L, Y
+		;LDA DATA_Y_ADDR_LOOKUP_L, Y
+		LDA HGR_Y_ADDR_LOOKUP_L, Y
 		clc 
 		adc temp2 ; add in tile byte offset		
 		STA temp3w
@@ -200,7 +201,8 @@ TILEENGINE_RENDER_LARGE_TILE_ANYLINE:
 		clc
 		ADC temp1	; y_offset in tiles
 		TAY
-		LDA DATA_Y_ADDR_LOOKUP_L, Y
+		;LDA DATA_Y_ADDR_LOOKUP_L, Y
+		LDA HGR_Y_ADDR_LOOKUP_L, Y
 		clc 
 		adc temp2 ; add in tile byte offset		
 		STA temp3w

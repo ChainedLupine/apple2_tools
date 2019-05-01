@@ -26,6 +26,7 @@ $(DISKIMAGE1): $(BINFILE_FULL) $(ASSETS_DISK1)
 	$(MAKE) DISK_TO_MAKE=$(DISKIMAGE1) DISK_VOLUME_TO_MAKE=$(DISKVOLUME1) makeprodos
 	$(MAKE) DISK_TO_MAKE=$(DISKIMAGE1) BIN_TO_LOAD=$(BINFILE) BIN_TO_LOAD_START=$(BINSTART) loadbin_selfstartprodos	
 	$(AC) -p $(DISKIMAGE1) ld44intro.dhgr bin 0x0000 <assets/ld44intro.dhgr
+#	$(AC) -p $(DISKIMAGE1) ld44intro.dhgr bin 0x0000 <assets/color-test-ntsc.dhgr
 	$(AC) -p $(DISKIMAGE1) titlescr.dhgr bin 0x0000 <assets/titlescr.dhgr
 	$(AC) -p $(DISKIMAGE1) ingame.dhgr bin 0x0000 <assets/ingame.dhgr
 	$(AC) -p $(DISKIMAGE1) room1.dhgr bin 0x0000 <assets/room1.dhgr
@@ -93,10 +94,17 @@ all: | bin dsk
 dsk: $(DISKIMAGE1) $(DISKIMAGE2)
 
 cleanassets: $(ASSETS)
-	-rm -f $^
+	-rm -f $(ASSETS_DISK1) $(ASSETS_DISK2)
 
 cleandsk:
 	-rm -f $(DISKIMAGE1) $(DISKIMAGE2)
-	
 
-clean: cleanbin cleandsk cleanassets
+colortest:
+	$(PALETTEDHGR) assets/color-test-ntsc.png
+	$(AC) -d color-test.po colortest.dhgr
+	$(AC) -p color-test.po colortest.dhgr bin 0x0000 <assets/color-test-ntsc.dhgr
+
+cleantables:
+	-rm -f src/tables.inc	
+
+clean: cleanbin cleandsk cleanassets cleantables

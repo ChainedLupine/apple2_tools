@@ -138,9 +138,9 @@ GRFX_COPY_HALF_LINE_TILES_BUFFER_TO_PAGE1:
 PLAY_ERROR_BEEP:
 		ZP_SAVE
 		
-		lda #$10
+		lda #$30
 		sta arg1
-		Util_LOAD_SYM $0110, arg1w
+		Util_LOAD_SYM $0090, arg1w
 		JSR PLAY_NOTE
 		
 		lda #$f0
@@ -157,12 +157,34 @@ PLAY_BEEP_SAD:
 		
 		lda #$e0
 		sta arg1
-		Util_LOAD_SYM $0020, arg1w
+		Util_LOAD_SYM $0025, arg1w
 		JSR PLAY_NOTE
 		
 		lda #$e7
 		sta arg1
 		Util_LOAD_SYM $0040, arg1w
+		JSR PLAY_NOTE
+
+		ZP_RESTORE
+
+		RTS
+
+PLAY_BEEP_MENTAL_LOSS:
+		ZP_SAVE
+		
+		lda #$10
+		sta arg1
+		Util_LOAD_SYM $0225, arg1w
+		JSR PLAY_NOTE
+		
+		lda #$15
+		sta arg1
+		Util_LOAD_SYM $0180, arg1w
+		JSR PLAY_NOTE
+
+		lda #$35
+		sta arg1
+		Util_LOAD_SYM $0150, arg1w
 		JSR PLAY_NOTE
 
 		ZP_RESTORE

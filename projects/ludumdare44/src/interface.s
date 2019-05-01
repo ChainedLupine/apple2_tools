@@ -2,6 +2,7 @@
 .include "zeropage.inc"
 .include "utils.inc"
 .include "apple2rom.inc"
+.include "apple2rom-defs.inc"
 
 .include "interface.inc"
 .include "tileengine.inc"
@@ -20,6 +21,17 @@ UI_RESET:
 
 		lda #interface_state_4way
 		sta ui_state
+
+		RTS
+
+UI_WAIT_FOR_KEY:
+		; slight delay
+	 	lda #$ff
+	:	dec
+		bne :-
+		STA SW_KEYSTROBE
+
+		JSR ROM::GETKEY
 
 		RTS
 

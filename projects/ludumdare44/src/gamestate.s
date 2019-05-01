@@ -5,6 +5,7 @@
 .include "gameworld.inc"
 .include "gamestate.inc"
 .include "interface.inc"
+.include "grfx.inc"
 
 .segment "CODE_H"
 
@@ -37,6 +38,8 @@ GS_ADD_SANITY:
 		RTS
 
 GS_REMOVE_SANITY:
+		JSR PLAY_BEEP_MENTAL_LOSS
+
 		lda state_health
 		dec
 		bpl :+

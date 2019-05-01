@@ -80,6 +80,6 @@
     RTS
 
   INTERACT_UNKNOWN:
-
+    JSR PLAY_BEEP_SAD
     PRINTR txt_interact_unknown
     RTS

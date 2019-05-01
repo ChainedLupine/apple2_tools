@@ -122,7 +122,6 @@ HANDLE_INPUT_SELECTOR:
     JMP @EXIT_INPUT
 
 @MOVE_ARROW_LEFT:
-    JSR SEL_CLEAR_ARROW
     ; move left
     JSR SEL_GET_ACTIVE_AMT_ON_LINE
     beq :++
@@ -131,22 +130,21 @@ HANDLE_INPUT_SELECTOR:
     dec
     cmp #selector_x_min
     bcs :+
-    JSR PLAY_ERROR_BEEP
+    jmp :++
     lda #selector_x_min
   :
+    pha
+    JSR SEL_CLEAR_ARROW
+    pla
     sta temp4
-
-    ;JSR DRAW_SELECTOR_ELEMENTS
     JSR SEL_DRAW_ARROW
     JSR PLAY_BEEP_SELECT
     rts
   :
     JSR PLAY_ERROR_BEEP
-    JSR SEL_DRAW_ARROW
     rts
 
 @MOVE_ARROW_RIGHT:
-    JSR SEL_CLEAR_ARROW
     ; move right
     JSR SEL_GET_ACTIVE_AMT_ON_LINE
     beq :++
@@ -161,20 +159,20 @@ HANDLE_INPUT_SELECTOR:
     inc
     cmp temp1
     bcc :+
-    JSR PLAY_ERROR_BEEP
+    jmp :++
     lda temp1
     dec
     dec
   :
+    pha
+    JSR SEL_CLEAR_ARROW
+    pla
     sta temp4
-
-    ;JSR DRAW_SELECTOR_ELEMENTS
     JSR SEL_DRAW_ARROW
     JSR PLAY_BEEP_SELECT
     rts
   :
     JSR PLAY_ERROR_BEEP
-    JSR SEL_DRAW_ARROW
     rts
 
 @MOVE_ARROW_UP:

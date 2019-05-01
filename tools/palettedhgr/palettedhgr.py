@@ -13,41 +13,50 @@ lines_to_process = 192
 # Why?  They show up identically on actual //e hardware
 # This does not apply to IIgs but I don't own one so write your own converter to test it!  :^)
 # It's easy to add, just add another entry to this table with the correct RGB and pal_hgr_map index
-pal_hgr_map = [
-#	((0x00, 0x00, 0x00), 0 ),	# black
-#	((0x6c, 0x29, 0x40), 1 ),	# magenta
-#	((0x40, 0x35, 0x78), 8 ),	# dark blue
-#	((0xd9, 0x3c, 0xf0), 9 ),	# purple
-#	((0x13, 0x57, 0x40), 4 ),	# dark green
-#	((0x80, 0x80, 0x80), 5 ),	# grey #1
-#	((0x26, 0x97, 0xf0), 12),	# medium blue
-#	((0xbf, 0xb4, 0xf8), 13),	# light blue
-#	((0x40, 0x4b, 0x07), 2 ),	# brown
-#	((0xd9, 0x68, 0x0f), 3 ),	# orange
-#	((0xec, 0xa8, 0xbf), 11),	# pink
-#	((0x26, 0xc3, 0x0f), 6 ),	# green
-#	((0xbf, 0xca, 0x87), 7 ),	# yellow	
-#	((0x93, 0xd6, 0xbf), 14),	# aqua
-#	((0xff, 0xff, 0xff), 15)	# white
-
+pal_hgr_map_rgb = [
+	# this is the "official" colors that you will find in emulators, books, etc. (more RGB style)
 	((0x00, 0x00, 0x00), 0 ),	# black
-	((0x26, 0x43, 0xff), 1 ),	# blue #1
-	((0x73, 0x0d, 0x2f), 8 ),	# magenta
-	((0xd9, 0x3c, 0xf0), 9 ),	# purple
-	((0x21, 0x40, 0x27), 4 ),	# dark green #1
-	((0x70, 0x70, 0x70), 5 ),	# grey #1
-	((0xf5, 0x84, 0x1b), 12),	# orange
-	((0xfd, 0x8f, 0xff), 13),	# light purple
+	((0xdd, 0x00, 0x33), 1 ),	# magenta
+	((0x88, 0x55, 0x00), 2 ),	# brown
+	((0xff, 0x66, 0x00), 3 ),	# orange
+	((0x00, 0x77, 0x22), 4 ),	# dark green
+	((0x55, 0x55, 0x55), 5 ),	# grey #1
+	((0x11, 0xdd, 0x00), 6 ),	# green
+	((0xff, 0xff, 0x00), 7 ),	# yellow
 	
-	((0x23, 0x61, 0x2a), 2 ),	# dark green #2
-	((0x10, 0x81, 0xeb), 3 ),	# light blue
-	((0xc6, 0x96, 0xfa), 11),	# light purple
-	((0x26, 0xc3, 0x0f), 6 ),	# green
-	((0x3e, 0xf7, 0xee), 7 ),	# cyan
-	((0xe1, 0xe8, 0x7b), 14),	# yellow
+	((0x00, 0x00, 0x99), 8 ),	# dark blue
+	((0xdd, 0x22, 0xdd), 9 ),	# violet
+	((0xaa, 0xaa, 0xaa), 10),	# grey #2
+	((0xff, 0x99, 0x88), 11),	# pink
+	((0x22, 0x22, 0xff), 12),	# medium blue
+	((0x66, 0xaa, 0xff), 13),	# light blue
+	((0x44, 0xff, 0x99), 14),	# aqua
 	((0xff, 0xff, 0xff), 15)	# white
-
 ]
+
+pal_hgr_map_ntsc = [
+	# these are my tweaked colors which match my perceptual tests on real TVs
+	((0x00, 0x00, 0x00), 0 ),	# black
+	((0x8d, 0x1c, 0x36), 1 ),	# magenta
+	((0x57, 0x35, 0x00), 2 ),	# brown
+	((0xff, 0x66, 0x00), 3 ),	# orange
+	((0x00, 0x57, 0x19), 4 ),	# dark green
+	((0x55, 0x55, 0x55), 5 ),	# grey #1
+	((0x0e, 0xad, 0x00), 6 ),	# green
+	((0xa8, 0xa8, 0x00), 7 ),	# yellow
+	
+	((0x00, 0x00, 0x99), 8 ),	# dark blue
+	((0x8c, 0x38, 0xe0), 9 ),	# violet
+	((0x4a, 0x4a, 0x4a), 10),	# grey #2
+	((0xff, 0x9e, 0xe0), 11),	# pink
+	((0x1f, 0x9a, 0xff), 12),	# medium blue
+	((0xae, 0xab, 0xff), 13),	# light blue
+	((0x44, 0xff, 0x99), 14),	# aqua
+	((0xff, 0xff, 0xff), 15)	# white
+]
+
+# use the NTSC map
+pal_hgr_map = pal_hgr_map_ntsc
 
 # in order of bit pattern
 hgr_bit_map = [ 
@@ -60,11 +69,11 @@ hgr_bit_map = [
 	0b0110, # 6,green
 	0b0111, # 7,yellow
 	0b1000, # 8,dark blue
-	0b1001, # 9,purple (aka violet in tech ref)
+	0b1001, # 9,violet
 	0b1010, # A,grey #2
 	0b1011, # B,pink
 	0b1100, # C,medium blue
-	0b1101, # D,light blue 13
+	0b1101, # D,light blue
 	0b1110, # E,aqua
 	0b1111, # F,white
 ]
@@ -113,6 +122,8 @@ if sizex == 140 and sizey == 192:
 
 		bit_patterns = [None] * 7
 
+		test = 1
+
 		#for y in range(0, 1): #192):
 		for y in range(0, lines_to_process):
 			addr = (int(y/64) | int(0)) * 0x28 + (int(y%8) | int(0)) * 0x400 + (int(y/8) & int(7)) * 0x80
@@ -138,23 +149,21 @@ if sizex == 140 and sizey == 192:
 
 				for p_idx in range(0, len(bit_patterns)):
 					bp = bit_patterns[p_idx]
-					#print(bp)
 					bits = BitArray(uint=bp, length=4)
-					bits.reverse()
 					ba.append (bits)
-				
-				# insert padding
-				ba.insert('uint:1=0', 7)
-				ba.insert('uint:1=0', 15)
-				ba.insert('uint:1=0', 23)
-				ba.insert('uint:1=0', 31)
-				
-				ba.reverse(0,8)
-				ba.reverse(8,16)
-				ba.reverse(16,24)
-				ba.reverse(24,32)
-				#print (ba.bin)
-				
+
+				# reverse each 7 bit pairs
+				ba.reverse(0,7)
+				ba.reverse(7,14)
+				ba.reverse(14,21)
+				ba.reverse(21,28)
+
+				# insert padding every 7 bits
+				ba.insert('uint:1=0', 0)
+				ba.insert('uint:1=0', 8)
+				ba.insert('uint:1=0', 16)
+				ba.insert('uint:1=0', 24)
+
 				byte_idx = math.floor(x / 7) * 2
 				#print (byte_idx)
 				
@@ -163,7 +172,7 @@ if sizex == 140 and sizey == 192:
 				main_buffer[addr + byte_idx] = ba.bytes[1]
 				aux_buffer[addr + byte_idx + 1] = ba.bytes[2]
 				main_buffer[addr + byte_idx + 1] = ba.bytes[3]
-				
+
 		# write aux and main buffers
 		out_file = open (dhgrfilename, 'bw')
 		out_file.write(aux_buffer)
