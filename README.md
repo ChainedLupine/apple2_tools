@@ -2,6 +2,8 @@
 
 My toolchain for building assembly for Apple II development.
 
+I used this to create an Apple II game for the Ludum Dare #44 gamejam!
+
 Library requires Apple //e Enhanced.
 
 Note: I'm using Windows, but this should be modified without too much trouble for other OSes.
